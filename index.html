@@ -68,9 +68,8 @@
 
         <section id="entri" class="hidden-section">
             <div class="card">
-                <h2 id="title-form-muzakki" class="text-sm font-bold text-emerald-700 mb-4 uppercase italic">Form Entri Muzakki</h2>
+                <h2 class="text-sm font-bold text-emerald-700 mb-4 uppercase italic">Form Entri Muzakki</h2>
                 <form id="form-muzakki" class="space-y-3">
-                    <input type="hidden" id="edit-index-muz">
                     <input type="date" id="tgl-zakat" class="w-full p-2 border rounded-xl outline-none" required>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="nama-muzakki" placeholder="Nama Muzakki" class="p-2 border rounded-xl" required>
@@ -89,8 +88,7 @@
                         <input type="number" id="s-uang" placeholder="Sod Rp" class="p-2 border rounded-lg text-[10px]">
                         <input type="number" step="0.1" id="s-beras" placeholder="Sod Kg" class="p-2 border rounded-lg text-[10px]">
                     </div>
-                    <button type="submit" id="btn-muzakki" class="w-full bg-emerald-600 text-white p-3 rounded-xl font-black shadow-lg uppercase">Simpan Muzakki</button>
-                    <button type="button" id="btn-cancel-muz" onclick="resetFormMuzakki()" class="hidden w-full bg-gray-400 text-white p-2 rounded-xl font-bold mt-1 uppercase text-xs">Batal Edit</button>
+                    <button type="submit" class="w-full bg-emerald-600 text-white p-3 rounded-xl font-black shadow-lg">SIMPAN MUZAKKI</button>
                 </form>
             </div>
 
@@ -119,7 +117,7 @@
                 </div>
                 <div class="table-res">
                     <table class="w-full text-left">
-                        <thead><tr class="text-gray-400"><th>Nama</th><th>RT</th><th>Beras</th><th>Uang</th><th class="text-center">Aksi</th></tr></thead>
+                        <thead><tr class="text-gray-400"><th>Nama</th><th>RT</th><th>Beras</th><th>Uang</th></tr></thead>
                         <tbody id="list-muzakki-full"></tbody>
                     </table>
                 </div>
@@ -143,6 +141,24 @@
         </section>
 
         <section id="laporan" class="hidden-section">
+            <div class="card bg-gray-900 text-white no-print">
+                <h2 class="text-xs font-bold text-emerald-400 mb-4 uppercase italic">Kalkulator Distribusi</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span>Total Jiwa (Mustahiq+Amil):</span>
+                        <input type="number" id="total-jiwa" placeholder="0" class="w-16 bg-gray-800 text-white text-center rounded border border-gray-700" onkeyup="hitungBagi()">
+                    </div>
+                    <div class="border-t border-gray-800 pt-2 space-y-2">
+                        <div class="flex justify-between text-emerald-300 font-bold">
+                            <span>Beras / Jiwa:</span> <span id="hasil-beras">0 Kg</span>
+                        </div>
+                        <div class="flex justify-between text-yellow-300 font-bold">
+                            <span>Uang / Jiwa:</span> <span id="hasil-uang">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="format-laporan-cetak" class="card">
                 <div class="text-center mb-6">
                     <h2 class="text-lg font-black uppercase">LAPORAN AKHIR PANITIA ZAKAT</h2>
@@ -150,36 +166,52 @@
                     <hr class="mt-2 border-black border-2">
                 </div>
                 <div class="space-y-5 text-xs">
-                    <table class="w-full">
-                        <tr><td>Total Muzakki</td><td id="rep-total-muz" class="text-right font-bold">0</td><td>Orang</td></tr>
-                        <tr><td>Zakat Fitrah Beras</td><td id="rep-beras" class="text-right font-bold">0</td><td>Kg</td></tr>
-                        <tr><td>Zakat Fitrah Uang</td><td id="rep-uang" class="text-right font-bold">0</td><td></td></tr>
-                        <tr><td>Zakat Maal</td><td id="rep-maal" class="text-right font-bold">0</td><td></td></tr>
-                        <tr><td>Total Sodaqoh</td><td id="rep-sod" class="text-right font-bold">0</td><td></td></tr>
-                        <tr><td>Total Mustahiq</td><td id="rep-mustahiq" class="text-right font-bold">0</td><td>Orang</td></tr>
-                    </table>
+                    <div>
+                        <p class="font-bold underline uppercase mb-2">I. PENERIMAAN (MUZAKKI)</p>
+                        <table class="w-full">
+                            <tr><td>Total Muzakki</td><td id="rep-total-muz" class="text-right font-bold">0</td><td>Orang</td></tr>
+                            <tr><td>Zakat Fitrah Beras</td><td id="rep-beras" class="text-right font-bold">0</td><td>Kg</td></tr>
+                            <tr><td>Zakat Fitrah Uang</td><td id="rep-uang" class="text-right font-bold">0</td><td></td></tr>
+                            <tr><td>Zakat Maal</td><td id="rep-maal" class="text-right font-bold">0</td><td></td></tr>
+                            <tr><td>Total Sodaqoh</td><td id="rep-sod" class="text-right font-bold">0</td><td></td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <p class="font-bold underline uppercase mb-2">II. PENYALURAN (MUSTAHIQ)</p>
+                        <p>Total Mustahiq Terdaftar: <span id="rep-mustahiq" class="font-bold">0</span> Orang</p>
+                        <p class="italic mt-1 text-[10px]">Keterangan: Zakat Fitrah telah didistribusikan secara merata sesuai jumlah jiwa yang ditetapkan panitia.</p>
+                    </div>
                     <div class="pt-10 flex justify-between px-4">
-                        <div class="text-center">DKM<br><br><br><br>( ............ )</div>
-                        <div class="text-center">Boja, <span id="tgl-laporan-now"></span><br>Panitia<br><br><br><br>( ............ )</div>
+                        <div class="text-center">Mengetahui,<br>Ketua DKM<br><br><br><br>( ..................... )</div>
+                        <div class="text-center">Boja, <span id="tgl-laporan-now"></span><br>Ketua Panitia<br><br><br><br>( ..................... )</div>
                     </div>
                 </div>
-                <button onclick="window.print()" class="no-print mt-10 w-full bg-blue-600 text-white p-3 rounded-xl font-black">PRINT</button>
+                <button onclick="window.print()" class="no-print mt-10 w-full bg-blue-600 text-white p-3 rounded-xl font-black shadow-lg">PRINT LAPORAN AKHIR</button>
             </div>
         </section>
 
         <section id="settings" class="hidden-section">
             <div class="card">
-                <h2 class="font-bold mb-4 uppercase text-xs italic border-b pb-2">Cloud & Backup</h2>
+                <h2 class="font-bold mb-4 uppercase text-xs italic border-b pb-2">Manajemen Cloud & Backup</h2>
                 <div class="space-y-4">
-                    <input type="password" id="gas-url-input" placeholder="GAS URL" class="w-full p-2 border rounded-lg text-[10px]">
-                    <button onclick="saveGasUrl()" class="w-full bg-emerald-700 text-white p-2 rounded-lg font-bold text-[10px]">UPDATE KONEKSI</button>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="exportToExcel()" class="bg-blue-600 text-white p-3 rounded-xl font-bold text-[10px]">EXCEL</button>
-                        <button onclick="backupJSON()" class="bg-purple-600 text-white p-3 rounded-xl font-bold text-[10px]">JSON</button>
+                    <div>
+                        <label class="text-[9px] font-bold text-emerald-600">GAS URL (GOOGLE SHEETS)</label>
+                        <input type="password" id="gas-url-input" placeholder="Paste URL Script" class="w-full p-2 border rounded-lg text-[10px] bg-gray-50">
+                        <button onclick="saveGasUrl()" class="w-full bg-emerald-700 text-white p-2 rounded-lg text-[10px] mt-1 font-bold">UPDATE KONEKSI</button>
                     </div>
+                    <hr>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="exportToExcel()" class="bg-blue-600 text-white p-3 rounded-xl font-bold text-[10px] shadow-md"><i class="fas fa-file-excel block text-lg mb-1"></i> EXCEL</button>
+                        <button onclick="backupJSON()" class="bg-purple-600 text-white p-3 rounded-xl font-bold text-[10px] shadow-md"><i class="fas fa-file-code block text-lg mb-1"></i> BACKUP (JSON)</button>
+                    </div>
+                    <label class="block bg-orange-500 text-white p-3 rounded-xl font-bold text-[10px] text-center cursor-pointer shadow-md">
+                        <i class="fas fa-upload mr-2"></i> IMPORT DATA JSON
+                        <input type="file" id="importFile" class="hidden" onchange="importData(event)">
+                    </label>
                     <button onclick="resetData()" class="w-full bg-red-50 text-red-600 p-2 rounded-xl text-[10px] font-bold">HAPUS SEMUA DATA</button>
                 </div>
             </div>
+            <p class="text-center text-[10px] text-gray-400 font-bold uppercase italic">Al Furqon Boja v3.0</p>
         </section>
 
     </div>
@@ -204,12 +236,14 @@
 
     <script>
         let db = JSON.parse(localStorage.getItem('zakat_db')) || { muzakki: [], mustahiq: [] };
+        document.getElementById('gas-url-input').value = localStorage.getItem('gas_url') || "";
 
         function nav(target, el) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(target).classList.remove('hidden-section');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-emerald-700'));
             el.classList.add('nav-active', 'text-emerald-700');
+            
             updateDashboard();
             if(target === 'riwayat') { renderMuzakkiFull(); renderMustahiqFull(); }
             if(target === 'laporan') updateLaporanFinal();
@@ -221,10 +255,8 @@
             try { await fetch(url + "?type=" + type, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }); } catch (e) {}
         }
 
-        // --- MANAJEMEN MUZAKKI ---
         document.getElementById('form-muzakki').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const idx = document.getElementById('edit-index-muz').value;
             const p = {
                 tgl: document.getElementById('tgl-zakat').value,
                 nama: document.getElementById('nama-muzakki').value,
@@ -235,63 +267,11 @@
                 sUang: parseFloat(document.getElementById('s-uang').value) || 0,
                 sBeras: parseFloat(document.getElementById('s-beras').value) || 0
             };
-
-            if (idx === "") {
-                db.muzakki.unshift(p);
-                alert("Data Muzakki Disimpan!");
-            } else {
-                db.muzakki[idx] = p;
-                alert("Data Muzakki Diperbarui!");
-            }
-            
-            save(); sync('muzakki', p);
-            resetFormMuzakki();
+            db.muzakki.unshift(p); save(); sync('muzakki', p);
+            e.target.reset(); alert("Data Muzakki Berhasil Disimpan!");
             updateDashboard();
         });
 
-        function editMuzakki(i) {
-            const data = db.muzakki[i];
-            document.getElementById('edit-index-muz').value = i;
-            document.getElementById('tgl-zakat').value = data.tgl;
-            document.getElementById('nama-muzakki').value = data.nama;
-            document.getElementById('rt-muzakki').value = data.rt;
-            document.getElementById('z-beras').value = data.beras;
-            document.getElementById('z-uang').value = data.uang;
-            document.getElementById('z-maal').value = data.maal;
-            document.getElementById('s-uang').value = data.sUang;
-            document.getElementById('s-beras').value = data.sBeras;
-            
-            document.getElementById('title-form-muzakki').innerText = "Edit Data Muzakki";
-            document.getElementById('btn-muzakki').innerText = "Perbarui Data";
-            document.getElementById('btn-cancel-muz').classList.remove('hidden');
-            nav('entri', document.querySelectorAll('.nav-btn')[1]);
-        }
-
-        function resetFormMuzakki() {
-            document.getElementById('form-muzakki').reset();
-            document.getElementById('edit-index-muz').value = "";
-            document.getElementById('title-form-muzakki').innerText = "Form Entri Muzakki";
-            document.getElementById('btn-muzakki').innerText = "Simpan Muzakki";
-            document.getElementById('btn-cancel-muz').classList.add('hidden');
-        }
-
-        function renderMuzakkiFull() {
-            const list = document.getElementById('list-muzakki-full');
-            list.innerHTML = db.muzakki.map((m, i) => `
-                <tr class="border-b muz-row" data-rt="${m.rt}">
-                    <td class="py-2"><b>${m.nama}</b></td>
-                    <td>${m.rt}</td>
-                    <td>${m.beras + m.sBeras} Kg</td>
-                    <td>${m.uang.toLocaleString()}</td>
-                    <td class="text-right flex gap-2 justify-end py-2">
-                        <button onclick="editMuzakki(${i})" class="text-blue-500"><i class="fas fa-edit"></i></button>
-                        <button onclick="del('muzakki', ${i})" class="text-red-400 mr-2"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // --- MUSTAHIQ ---
         document.getElementById('form-mustahiq').addEventListener('submit', async (e) => {
             e.preventDefault();
             const p = {
@@ -301,9 +281,21 @@
                 tgl: new Date().toLocaleDateString('id-ID')
             };
             db.mustahiq.unshift(p); save(); sync('mustahiq', p);
-            e.target.reset(); alert("Data Mustahiq Disimpan!");
+            e.target.reset(); alert("Data Mustahiq Berhasil Disimpan!");
             updateDashboard();
         });
+
+        function renderMuzakkiFull() {
+            const list = document.getElementById('list-muzakki-full');
+            list.innerHTML = db.muzakki.map((m, i) => `
+                <tr class="border-b muz-row" data-rt="${m.rt}">
+                    <td class="py-2"><b>${m.nama}</b></td>
+                    <td>${m.rt}</td>
+                    <td>${m.beras + m.sBeras} Kg</td>
+                    <td>${m.uang.toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
 
         function renderMustahiqFull() {
             const list = document.getElementById('list-mustahiq-full');
@@ -331,6 +323,15 @@
             });
         }
 
+        function hitungBagi() {
+            const jiwa = parseFloat(document.getElementById('total-jiwa').value) || 0;
+            if (jiwa <= 0) return;
+            let tb=0, tf=0;
+            db.muzakki.forEach(m => { tb += (m.beras + m.sBeras); tf += m.uang; });
+            document.getElementById('hasil-beras').innerText = (tb / jiwa).toFixed(2) + " Kg";
+            document.getElementById('hasil-uang').innerText = "Rp " + Math.floor(tf / jiwa).toLocaleString();
+        }
+
         function updateLaporanFinal() {
             let b=0, uF=0, uM=0, uS=0;
             db.muzakki.forEach(m => { b+=(m.beras+m.sBeras); uF+=m.uang; uM+=m.maal; uS+=m.sUang; });
@@ -343,19 +344,29 @@
             document.getElementById('tgl-laporan-now').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         }
 
+        // UPDATE DASHBOARD DENGAN RINCIAN MAAL & SEDEKAH
         function updateDashboard() {
             let b=0, uF=0, uM=0, sU=0, sB=0;
-            db.muzakki.forEach(m => { b+=m.beras; uF+=m.uang; uM+=m.maal; sU+=m.sUang; sB+=m.sBeras; });
+            db.muzakki.forEach(m => { 
+                b += m.beras; 
+                uF += m.uang; 
+                uM += m.maal; 
+                sU += m.sUang; 
+                sB += m.sBeras; 
+            });
             document.getElementById('dash-beras').innerText = b.toFixed(1) + " Kg";
             document.getElementById('dash-uang').innerText = "Rp " + uF.toLocaleString();
+            
+            // Tampilan Rincian Baru
             document.getElementById('dash-maal').innerText = "Rp " + uM.toLocaleString();
             document.getElementById('dash-sod-uang').innerText = "Rp " + sU.toLocaleString();
             document.getElementById('dash-sod-beras').innerText = sB.toFixed(1) + " Kg";
+            
             document.getElementById('stat-muzakki').innerText = db.muzakki.length;
             document.getElementById('stat-mustahiq').innerText = db.mustahiq.length;
         }
 
-        function del(type, i) { if(confirm("Hapus data?")) { db[type].splice(i, 1); save(); if(type==='muzakki') renderMuzakkiFull(); else renderMustahiqFull(); updateDashboard(); } }
+        function del(type, i) { if(confirm("Hapus data?")) { db[type].splice(i, 1); save(); renderMustahiqFull(); updateDashboard(); } }
         function save() { localStorage.setItem('zakat_db', JSON.stringify(db)); }
         function saveGasUrl() { localStorage.setItem('gas_url', document.getElementById('gas-url-input').value); alert("Koneksi Cloud Disimpan!"); }
         
@@ -374,7 +385,22 @@
             XLSX.writeFile(wb, "Laporan_Zakat_Boja_2026.xlsx");
         }
 
-        function resetData() { if(confirm("Hapus Permanen?")) { localStorage.clear(); location.reload(); } }
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.muzakki && imported.mustahiq) {
+                        db = imported; save();
+                        alert("✅ Data Berhasil Masuk! Admin Baru Bisa Melanjutkan.");
+                        location.reload();
+                    }
+                } catch (err) { alert("❌ File Tidak Cocok!"); }
+            };
+            reader.readAsText(event.target.files[0]);
+        }
+
+        function resetData() { if(confirm("⚠️ Hapus Permanen?")) { localStorage.clear(); location.reload(); } }
         
         updateDashboard();
     </script>
