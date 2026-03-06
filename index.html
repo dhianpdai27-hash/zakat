@@ -3,371 +3,386 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zakat Al Furqon 2026 - Database Lengkap</title>
+    <title>Sistem Zakat Al Furqon Boja 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding-bottom: 90px; background-color: #f0fdf4; }
+        body { font-family: 'Segoe UI', sans-serif; padding-bottom: 90px; background-color: #f8fafc; }
         .nav-active { color: #059669; border-top: 4px solid #059669; background-color: #f0fdf4; }
         .hidden-section { display: none; }
-        .card { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .table-res { overflow-x: auto; font-size: 11px; max-height: 400px; overflow-y: auto; }
-        th { position: sticky; top: 0; background: #f9fafb; z-index: 10; }
-        @media print { .no-print { display: none !important; } .print-area { display: block !important; border: 1px solid #000; padding: 20px; } body { background: white; } }
-        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; }
+        .card { background: white; padding: 18px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
+        .table-res { overflow-x: auto; max-height: 450px; overflow-y: auto; font-size: 11px; }
+        th { position: sticky; top: 0; background: #f1f5f9; z-index: 10; padding: 8px; }
+        @media print { 
+            .no-print { display: none !important; } 
+            .print-only { display: block !important; } 
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: 1px solid #eee; margin: 0; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading" class="loading-overlay flex-col">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-        <p class="mt-2 font-bold text-emerald-700 italic">Sinkronisasi Cloud...</p>
-    </div>
-
     <header class="bg-emerald-700 text-white p-5 text-center shadow-lg no-print">
-        <h1 class="text-xl font-black tracking-tighter">MASJID AL FURQON</h1>
-        <p class="text-[10px] tracking-[0.2em] opacity-80 uppercase font-bold">Data Management Muzakki & Mustahiq</p>
+        <h1 class="text-xl font-black italic uppercase tracking-tighter">MASJID AL FURQON BOJA</h1>
+        <p class="text-[10px] tracking-widest opacity-80 uppercase">Laporan & Distribusi Terpadu 2026</p>
     </header>
 
     <div class="container mx-auto p-4 max-w-2xl">
 
         <section id="dashboard">
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-gradient-to-br from-blue-600 to-blue-400 text-white p-5 rounded-3xl shadow-lg">
-                    <p class="text-[10px] font-bold uppercase opacity-80">Total Beras</p>
-                    <p id="dash-beras" class="text-3xl font-black italic">0 Kg</p>
+            <div class="card bg-emerald-800 text-white">
+                <h2 class="text-xs font-bold uppercase opacity-70 mb-4 tracking-widest">Kondisi Kas Saat Ini</h2>
+                <div class="grid grid-cols-2 gap-4 border-b border-emerald-700 pb-4 mb-4">
+                    <div><p class="text-2xl font-black" id="dash-beras">0 Kg</p><p class="text-[10px] opacity-70 uppercase">Total Beras Fitrah</p></div>
+                    <div><p class="text-2xl font-black" id="dash-uang">Rp 0</p><p class="text-[10px] opacity-70 uppercase">Total Uang Fitrah</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-emerald-600 to-teal-500 text-white p-5 rounded-3xl shadow-lg">
-                    <p class="text-[10px] font-bold uppercase opacity-80">Total Uang</p>
-                    <p id="dash-uang" class="text-2xl font-black">Rp 0</p>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-emerald-900/50 p-2 rounded-lg">
+                        <p id="dash-maal" class="text-sm font-bold">Rp 0</p>
+                        <p class="text-[8px] opacity-70 uppercase">Zakat Maal</p>
+                    </div>
+                    <div class="bg-emerald-900/50 p-2 rounded-lg">
+                        <p id="dash-sod-uang" class="text-sm font-bold">Rp 0</p>
+                        <p class="text-[8px] opacity-70 uppercase">Sod. Uang</p>
+                    </div>
+                    <div class="bg-emerald-900/50 p-2 rounded-lg">
+                        <p id="dash-sod-beras" class="text-sm font-bold">0 Kg</p>
+                        <p class="text-[8px] opacity-70 uppercase">Sod. Beras</p>
+                    </div>
                 </div>
             </div>
-            
-            <div class="card border-l-4 border-emerald-500">
-                <h3 class="text-xs font-black text-gray-400 mb-4 uppercase tracking-widest border-b pb-2">Rincian Saldo</h3>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between font-medium text-gray-600"><span>Zakat Fitrah:</span> <span id="dtl-fitrah" class="text-gray-900 font-bold">Rp 0</span></div>
-                    <div class="flex justify-between font-medium text-gray-600"><span>Zakat Maal:</span> <span id="dtl-maal" class="text-gray-900 font-bold">Rp 0</span></div>
-                    <div class="flex justify-between font-medium text-gray-600"><span>Sodaqoh:</span> <span id="dtl-sod" class="text-gray-900 font-bold">Rp 0</span></div>
+
+            <div class="grid grid-cols-2 gap-4 mb-5">
+                <div class="card mb-0 border-b-4 border-blue-500 text-center">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Muzakki</p>
+                    <p id="stat-muzakki" class="text-xl font-black text-blue-600">0</p>
+                </div>
+                <div class="card mb-0 border-b-4 border-orange-500 text-center">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Mustahiq</p>
+                    <p id="stat-mustahiq" class="text-xl font-black text-orange-600">0</p>
                 </div>
             </div>
         </section>
 
-        <section id="muzakki" class="hidden-section">
+        <section id="entri" class="hidden-section">
             <div class="card">
-                <h2 class="text-lg font-black text-emerald-800 mb-4 uppercase italic">Entri Muzakki Baru</h2>
+                <h2 class="text-sm font-bold text-emerald-700 mb-4 uppercase italic">Form Entri Muzakki</h2>
                 <form id="form-muzakki" class="space-y-3">
-                    <input type="date" id="tgl-zakat" class="w-full p-3 border-2 border-gray-100 rounded-2xl outline-none focus:border-emerald-500" required>
+                    <input type="date" id="tgl-zakat" class="w-full p-2 border rounded-xl outline-none" required>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="nama-muzakki" placeholder="Nama Muzakki" class="p-3 border-2 border-gray-100 rounded-2xl" required>
-                        <input type="text" id="rt-muzakki" placeholder="RT" class="p-3 border-2 border-gray-100 rounded-2xl">
+                        <input type="text" id="nama-muzakki" placeholder="Nama Muzakki" class="p-2 border rounded-xl" required>
+                        <input type="text" id="rt-muzakki" placeholder="RT (Contoh: 01)" class="p-2 border rounded-xl">
                     </div>
-                    <textarea id="alamat-muzakki" placeholder="Alamat" rows="2" class="w-full p-3 border-2 border-gray-100 rounded-2xl"></textarea>
-                    
-                    <div class="grid grid-cols-2 gap-2 bg-emerald-50 p-3 rounded-2xl">
-                        <div>
-                            <label class="text-[9px] font-bold text-emerald-600 uppercase">Beras (Kg)</label>
-                            <input type="number" step="0.1" id="z-beras" placeholder="0" class="w-full bg-transparent font-bold">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-emerald-600 uppercase">Uang (Rp)</label>
-                            <select id="z-uang" class="w-full bg-transparent font-bold">
-                                <option value="0">Pilih</option>
-                                <option value="45000">45.000</option>
-                                <option value="50000">50.000</option>
-                                <option value="custom">Manual</option>
-                            </select>
-                        </div>
+                    <div class="grid grid-cols-2 gap-2 bg-emerald-50 p-2 rounded-xl">
+                        <input type="number" step="0.1" id="z-beras" placeholder="Zakat Beras (Kg)" class="p-2 border rounded-lg font-bold">
+                        <select id="z-uang" class="p-2 border rounded-lg font-bold">
+                            <option value="0">Pilih Nominal Uang</option>
+                            <option value="45000">45.000</option>
+                            <option value="50000">50.000</option>
+                        </select>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" id="z-maal" placeholder="Maal" class="p-2 border rounded-xl text-xs">
-                        <input type="number" id="s-uang" placeholder="Sod Uang" class="p-2 border rounded-xl text-xs">
-                        <input type="number" step="0.1" id="s-beras" placeholder="Sod Beras" class="p-2 border rounded-xl text-xs">
+                    <div class="grid grid-cols-3 gap-1">
+                        <input type="number" id="z-maal" placeholder="Maal" class="p-2 border rounded-lg text-[10px]">
+                        <input type="number" id="s-uang" placeholder="Sod Rp" class="p-2 border rounded-lg text-[10px]">
+                        <input type="number" step="0.1" id="s-beras" placeholder="Sod Kg" class="p-2 border rounded-lg text-[10px]">
                     </div>
-                    <button type="submit" class="w-full bg-emerald-600 text-white p-4 rounded-2xl font-black shadow-lg">SIMPAN PENERIMAAN</button>
+                    <button type="submit" class="w-full bg-emerald-600 text-white p-3 rounded-xl font-black shadow-lg">SIMPAN MUZAKKI</button>
                 </form>
             </div>
 
+            <div class="card border-t-4 border-orange-400">
+                <h2 class="text-sm font-bold text-orange-700 mb-4 uppercase italic">Form Entri Mustahiq</h2>
+                <form id="form-mustahiq" class="space-y-3">
+                    <input type="text" id="nama-mustahiq" placeholder="Nama Penerima" class="w-full p-2 border rounded-xl" required>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="rt-mustahiq" placeholder="RT" class="p-2 border rounded-xl">
+                        <select id="kategori-mustahiq" class="p-2 border rounded-xl font-bold">
+                            <option value="Fakir/Miskin">Fakir/Miskin</option>
+                            <option value="Fi Sabilillah">Fi Sabilillah</option>
+                            <option value="Amil">Amil</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-orange-500 text-white p-3 rounded-xl font-black">SIMPAN MUSTAHIQ</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="riwayat" class="hidden-section">
             <div class="card">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-xs font-bold uppercase text-gray-500 tracking-tighter">Database Seluruh Muzakki</h3>
-                    <input type="text" id="search-muzakki" onkeyup="filterMuzakki()" placeholder="Cari Nama/RT..." class="p-2 border rounded-lg text-[10px] w-32 outline-none focus:border-emerald-500">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold uppercase text-emerald-800">Database Muzakki</h2>
+                    <input type="text" id="search-muz-rt" onkeyup="filterMuzakki()" placeholder="Cari RT..." class="p-1 border rounded text-[10px] w-20">
                 </div>
                 <div class="table-res">
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50">
-                            <tr class="border-b text-[10px] text-gray-400 uppercase">
-                                <th class="p-2">Nama</th>
-                                <th>RT</th>
-                                <th>Beras</th>
-                                <th>Uang</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="full-muzakki-list"></tbody>
+                        <thead><tr class="text-gray-400"><th>Nama</th><th>RT</th><th>Beras</th><th>Uang</th></tr></thead>
+                        <tbody id="list-muzakki-full"></tbody>
                     </table>
                 </div>
-                <p class="text-[9px] mt-2 text-gray-400 italic">* Menampilkan semua data yang tersimpan di memori perangkat.</p>
-            </div>
-        </section>
-
-        <section id="mustahiq" class="hidden-section">
-            <div class="card">
-                <h2 class="text-lg font-black text-orange-700 mb-4 uppercase italic">Entri Penyaluran</h2>
-                <form id="form-mustahiq" class="space-y-3">
-                    <input type="text" id="nama-mustahiq" placeholder="Nama Penerima" class="w-full p-3 border-2 border-gray-50 rounded-2xl" required>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="rt-mustahiq" placeholder="RT" class="p-3 border-2 border-gray-50 rounded-2xl">
-                        <select id="kategori-mustahiq" class="p-3 border-2 border-gray-50 rounded-2xl font-bold">
-                            <option value="Fakir">Fakir</option>
-                            <option value="Miskin">Miskin</option>
-                            <option value="Fi Sabilillah">Fi Sabilillah</option>
-                        </select>
-                    </div>
-                    <textarea id="ket-mustahiq" placeholder="Keterangan (Contoh: Beras 5kg)" class="w-full p-3 border-2 border-gray-50 rounded-2xl"></textarea>
-                    <button type="submit" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-black shadow-lg">SIMPAN PENYALURAN</button>
-                </form>
             </div>
 
             <div class="card">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xs font-bold uppercase text-gray-500 tracking-tighter">Database Seluruh Mustahiq</h3>
-                    <input type="text" id="search-rt" onkeyup="filterMustahiq()" placeholder="Filter RT..." class="p-2 border rounded-lg text-[10px] w-32 outline-none">
+                    <h2 class="text-sm font-bold uppercase text-orange-800">Database Mustahiq</h2>
+                    <div class="flex gap-1">
+                        <input type="text" id="search-mus-rt" onkeyup="filterMustahiq()" placeholder="Filter RT..." class="p-1 border rounded text-[10px] w-20">
+                        <button onclick="window.print()" class="bg-black text-white px-2 py-1 rounded text-[9px] font-bold"><i class="fas fa-print"></i> RT INI</button>
+                    </div>
                 </div>
                 <div class="table-res">
-                    <table id="tabel-mustahiq" class="w-full text-left">
-                        <thead class="bg-gray-50">
-                            <tr class="border-b text-[10px] text-gray-400 uppercase">
-                                <th class="p-2">Nama</th>
-                                <th>RT</th>
-                                <th>Ket</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="list-mustahiq"></tbody>
+                    <table class="w-full text-left">
+                        <thead><tr class="text-gray-400"><th>Nama</th><th>RT</th><th>Kategori</th><th>Hapus</th></tr></thead>
+                        <tbody id="list-mustahiq-full"></tbody>
                     </table>
                 </div>
-                <button onclick="window.print()" class="mt-4 w-full bg-black text-white p-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-print mr-2"></i> Cetak Laporan RT Ini</button>
+            </div>
+        </section>
+
+        <section id="laporan" class="hidden-section">
+            <div class="card bg-gray-900 text-white no-print">
+                <h2 class="text-xs font-bold text-emerald-400 mb-4 uppercase italic">Kalkulator Distribusi</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span>Total Jiwa (Mustahiq+Amil):</span>
+                        <input type="number" id="total-jiwa" placeholder="0" class="w-16 bg-gray-800 text-white text-center rounded border border-gray-700" onkeyup="hitungBagi()">
+                    </div>
+                    <div class="border-t border-gray-800 pt-2 space-y-2">
+                        <div class="flex justify-between text-emerald-300 font-bold">
+                            <span>Beras / Jiwa:</span> <span id="hasil-beras">0 Kg</span>
+                        </div>
+                        <div class="flex justify-between text-yellow-300 font-bold">
+                            <span>Uang / Jiwa:</span> <span id="hasil-uang">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="format-laporan-cetak" class="card">
+                <div class="text-center mb-6">
+                    <h2 class="text-lg font-black uppercase">LAPORAN AKHIR PANITIA ZAKAT</h2>
+                    <h3 class="font-bold uppercase">MASJID AL FURQON - BOJA</h3>
+                    <hr class="mt-2 border-black border-2">
+                </div>
+                <div class="space-y-5 text-xs">
+                    <div>
+                        <p class="font-bold underline uppercase mb-2">I. PENERIMAAN (MUZAKKI)</p>
+                        <table class="w-full">
+                            <tr><td>Total Muzakki</td><td id="rep-total-muz" class="text-right font-bold">0</td><td>Orang</td></tr>
+                            <tr><td>Zakat Fitrah Beras</td><td id="rep-beras" class="text-right font-bold">0</td><td>Kg</td></tr>
+                            <tr><td>Zakat Fitrah Uang</td><td id="rep-uang" class="text-right font-bold">0</td><td></td></tr>
+                            <tr><td>Zakat Maal</td><td id="rep-maal" class="text-right font-bold">0</td><td></td></tr>
+                            <tr><td>Total Sodaqoh</td><td id="rep-sod" class="text-right font-bold">0</td><td></td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <p class="font-bold underline uppercase mb-2">II. PENYALURAN (MUSTAHIQ)</p>
+                        <p>Total Mustahiq Terdaftar: <span id="rep-mustahiq" class="font-bold">0</span> Orang</p>
+                        <p class="italic mt-1 text-[10px]">Keterangan: Zakat Fitrah telah didistribusikan secara merata sesuai jumlah jiwa yang ditetapkan panitia.</p>
+                    </div>
+                    <div class="pt-10 flex justify-between px-4">
+                        <div class="text-center">Mengetahui,<br>Ketua DKM<br><br><br><br>( ..................... )</div>
+                        <div class="text-center">Boja, <span id="tgl-laporan-now"></span><br>Ketua Panitia<br><br><br><br>( ..................... )</div>
+                    </div>
+                </div>
+                <button onclick="window.print()" class="no-print mt-10 w-full bg-blue-600 text-white p-3 rounded-xl font-black shadow-lg">PRINT LAPORAN AKHIR</button>
             </div>
         </section>
 
         <section id="settings" class="hidden-section">
-            <div class="card border-t-4 border-emerald-500">
-                <h2 class="font-bold text-gray-700 mb-4 uppercase text-sm italic border-b pb-2">Konfigurasi Admin</h2>
+            <div class="card">
+                <h2 class="font-bold mb-4 uppercase text-xs italic border-b pb-2">Manajemen Cloud & Backup</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-[9px] font-bold text-emerald-600">GOOGLE APPS SCRIPT URL</label>
-                        <input type="password" id="gas-url-input" placeholder="https://script.google.com/..." class="w-full p-3 border rounded-xl text-[10px] bg-gray-50">
-                        <button onclick="saveGasUrl()" class="w-full bg-emerald-600 text-white p-2 rounded-lg text-[10px] mt-2 font-bold uppercase shadow">Update Link Cloud</button>
+                        <label class="text-[9px] font-bold text-emerald-600">GAS URL (GOOGLE SHEETS)</label>
+                        <input type="password" id="gas-url-input" placeholder="Paste URL Script" class="w-full p-2 border rounded-lg text-[10px] bg-gray-50">
+                        <button onclick="saveGasUrl()" class="w-full bg-emerald-700 text-white p-2 rounded-lg text-[10px] mt-1 font-bold">UPDATE KONEKSI</button>
                     </div>
                     <hr>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="exportToExcel()" class="bg-blue-600 text-white p-4 rounded-2xl font-bold text-[10px] flex flex-col items-center shadow-lg">
-                            <i class="fas fa-file-excel mb-1 text-xl"></i> EXPORT EXCEL
-                        </button>
-                        <label class="bg-orange-500 text-white p-4 rounded-2xl font-bold text-[10px] flex flex-col items-center cursor-pointer text-center shadow-lg">
-                            <i class="fas fa-file-import mb-1 text-xl"></i> IMPORT DATA (JSON)
-                            <input type="file" id="importFile" class="hidden" onchange="importData(event)">
-                        </label>
+                        <button onclick="exportToExcel()" class="bg-blue-600 text-white p-3 rounded-xl font-bold text-[10px] shadow-md"><i class="fas fa-file-excel block text-lg mb-1"></i> EXCEL</button>
+                        <button onclick="backupJSON()" class="bg-purple-600 text-white p-3 rounded-xl font-bold text-[10px] shadow-md"><i class="fas fa-file-code block text-lg mb-1"></i> BACKUP (JSON)</button>
                     </div>
-                    <button onclick="resetData()" class="w-full bg-red-100 text-red-600 p-3 rounded-xl font-bold text-[10px] uppercase tracking-tighter">Hapus Semua Data Memori</button>
+                    <label class="block bg-orange-500 text-white p-3 rounded-xl font-bold text-[10px] text-center cursor-pointer shadow-md">
+                        <i class="fas fa-upload mr-2"></i> IMPORT DATA JSON
+                        <input type="file" id="importFile" class="hidden" onchange="importData(event)">
+                    </label>
+                    <button onclick="resetData()" class="w-full bg-red-50 text-red-600 p-2 rounded-xl text-[10px] font-bold">HAPUS SEMUA DATA</button>
                 </div>
             </div>
-            <p class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">Masjid Al Furqon © 2026</p>
+            <p class="text-center text-[10px] text-gray-400 font-bold uppercase italic">Al Furqon Boja v3.0</p>
         </section>
 
     </div>
 
-    <div id="print-receipt" class="hidden print-area">
-        <center>
-            <h2 class="font-bold uppercase text-lg">MASJID AL FURQON</h2>
-            <p class="text-xs">Bukti Penyaluran Zakat Fitrah 1447H</p>
-            <hr class="my-3 border-black">
-        </center>
-        <div id="receipt-content" class="text-sm leading-relaxed"></div>
-        <div class="mt-12 flex justify-between text-xs font-bold">
-            <center>Penerima / Mustahiq<br><br><br><br>(.........................)</center>
-            <center>Panitia Zakat<br><br><br><br>(.........................)</center>
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 no-print shadow-2xl z-50">
+        <div class="nav-btn nav-active text-center w-1/5" onclick="nav('dashboard', this)">
+            <i class="fas fa-chart-pie text-lg"></i><p class="text-[8px] font-bold uppercase">Home</p>
         </div>
-    </div>
-
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 no-print shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-50">
-        <div class="nav-btn nav-active text-center w-1/4" onclick="nav('dashboard', this)">
-            <i class="fas fa-home text-xl"></i><p class="text-[9px] font-black uppercase">Home</p>
+        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('entri', this)">
+            <i class="fas fa-edit text-lg"></i><p class="text-[8px] font-bold uppercase">Entri</p>
         </div>
-        <div class="nav-btn text-gray-300 text-center w-1/4" onclick="nav('muzakki', this)">
-            <i class="fas fa-hand-holding-heart text-xl"></i><p class="text-[9px] font-black uppercase">Muzakki</p>
+        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('riwayat', this)">
+            <i class="fas fa-database text-lg"></i><p class="text-[8px] font-bold uppercase">Data</p>
         </div>
-        <div class="nav-btn text-gray-300 text-center w-1/4" onclick="nav('mustahiq', this)">
-            <i class="fas fa-users text-xl"></i><p class="text-[9px] font-black uppercase">Mustahiq</p>
+        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('laporan', this)">
+            <i class="fas fa-file-signature text-lg"></i><p class="text-[8px] font-bold uppercase">Laporan</p>
         </div>
-        <div class="nav-btn text-gray-300 text-center w-1/4" onclick="nav('settings', this)">
-            <i class="fas fa-cog text-xl"></i><p class="text-[9px] font-black uppercase">Setting</p>
+        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('settings', this)">
+            <i class="fas fa-cog text-lg"></i><p class="text-[8px] font-bold uppercase">Set</p>
         </div>
     </nav>
 
     <script>
-        // Inisialisasi Database
         let db = JSON.parse(localStorage.getItem('zakat_db')) || { muzakki: [], mustahiq: [] };
         document.getElementById('gas-url-input').value = localStorage.getItem('gas_url') || "";
 
         function nav(target, el) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(target).classList.remove('hidden-section');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-emerald-600'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.add('text-gray-300'));
-            el.classList.add('nav-active', 'text-emerald-600');
-            el.classList.remove('text-gray-300');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-emerald-700'));
+            el.classList.add('nav-active', 'text-emerald-700');
             
             updateDashboard();
-            if(target === 'muzakki') renderFullMuzakki();
-            if(target === 'mustahiq') renderMustahiq();
-        }
-
-        function saveGasUrl() {
-            localStorage.setItem('gas_url', document.getElementById('gas-url-input').value);
-            alert("✅ Link Google Apps Script Berhasil Disimpan!");
+            if(target === 'riwayat') { renderMuzakkiFull(); renderMustahiqFull(); }
+            if(target === 'laporan') updateLaporanFinal();
         }
 
         async function sync(type, data) {
             const url = localStorage.getItem('gas_url');
             if (!url) return;
-            document.getElementById('loading').style.display = 'flex';
-            try {
-                await fetch(url + "?type=" + type, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            } catch (e) { console.error("Cloud Error", e); }
-            document.getElementById('loading').style.display = 'none';
+            try { await fetch(url + "?type=" + type, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }); } catch (e) {}
         }
 
-        // --- MANAJEMEN MUZAKKI ---
         document.getElementById('form-muzakki').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const uangVal = document.getElementById('z-uang').value;
-            const finalUang = uangVal === 'custom' ? parseFloat(prompt("Masukkan Nominal:")) : parseFloat(uangVal);
-            
             const p = {
                 tgl: document.getElementById('tgl-zakat').value,
                 nama: document.getElementById('nama-muzakki').value,
                 rt: document.getElementById('rt-muzakki').value,
-                alamat: document.getElementById('alamat-muzakki').value,
                 beras: parseFloat(document.getElementById('z-beras').value) || 0,
-                uang: finalUang || 0,
+                uang: parseFloat(document.getElementById('z-uang').value) || 0,
                 maal: parseFloat(document.getElementById('z-maal').value) || 0,
                 sUang: parseFloat(document.getElementById('s-uang').value) || 0,
-                sBeras: parseFloat(document.getElementById('s-beras').value) || 0,
-                id: Date.now()
+                sBeras: parseFloat(document.getElementById('s-beras').value) || 0
             };
-
-            db.muzakki.unshift(p);
-            localStorage.setItem('zakat_db', JSON.stringify(db));
-            await sync('muzakki', p);
-            alert("✅ Data Muzakki Tersimpan!");
-            e.target.reset();
-            renderFullMuzakki();
+            db.muzakki.unshift(p); save(); sync('muzakki', p);
+            e.target.reset(); alert("Data Muzakki Berhasil Disimpan!");
             updateDashboard();
         });
 
-        function renderFullMuzakki() {
-            const list = document.getElementById('full-muzakki-list');
-            list.innerHTML = db.muzakki.map((m, idx) => `
-                <tr class="border-b text-[10px] muzakki-row" data-search="${m.nama.toLowerCase()} rt${m.rt}">
-                    <td class="p-2 font-bold">${m.nama}</td>
+        document.getElementById('form-mustahiq').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const p = {
+                nama: document.getElementById('nama-mustahiq').value,
+                rt: document.getElementById('rt-mustahiq').value,
+                kategori: document.getElementById('kategori-mustahiq').value,
+                tgl: new Date().toLocaleDateString('id-ID')
+            };
+            db.mustahiq.unshift(p); save(); sync('mustahiq', p);
+            e.target.reset(); alert("Data Mustahiq Berhasil Disimpan!");
+            updateDashboard();
+        });
+
+        function renderMuzakkiFull() {
+            const list = document.getElementById('list-muzakki-full');
+            list.innerHTML = db.muzakki.map((m, i) => `
+                <tr class="border-b muz-row" data-rt="${m.rt}">
+                    <td class="py-2"><b>${m.nama}</b></td>
                     <td>${m.rt}</td>
-                    <td>${(m.beras + m.sBeras).toFixed(1)} Kg</td>
+                    <td>${m.beras + m.sBeras} Kg</td>
                     <td>${m.uang.toLocaleString()}</td>
-                    <td><button onclick="deleteMuzakki(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
         }
 
-        function filterMuzakki() {
-            let val = document.getElementById('search-muzakki').value.toLowerCase();
-            document.querySelectorAll('.muzakki-row').forEach(row => {
-                row.style.display = row.getAttribute('data-search').includes(val) ? '' : 'none';
-            });
-        }
-
-        function deleteMuzakki(idx) {
-            if(confirm("Hapus data ini?")) {
-                db.muzakki.splice(idx, 1);
-                localStorage.setItem('zakat_db', JSON.stringify(db));
-                renderFullMuzakki();
-                updateDashboard();
-            }
-        }
-
-        // --- MANAJEMEN MUSTAHIQ ---
-        document.getElementById('form-mustahiq').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const p = {
-                tgl: new Date().toLocaleDateString('id-ID'),
-                nama: document.getElementById('nama-mustahiq').value,
-                rt: document.getElementById('rt-mustahiq').value,
-                kategori: document.getElementById('kategori-mustahiq').value,
-                ket: document.getElementById('ket-mustahiq').value
-            };
-            db.mustahiq.unshift(p);
-            localStorage.setItem('zakat_db', JSON.stringify(db));
-            await sync('mustahiq', p);
-            renderMustahiq();
-            e.target.reset();
-            alert("✅ Data Penyaluran Tersimpan!");
-        });
-
-        function renderMustahiq() {
-            const list = document.getElementById('list-mustahiq');
-            list.innerHTML = db.mustahiq.map((m, idx) => `
-                <tr class="border-b text-[10px] rt-row" data-rt="rt${m.rt} ${m.nama.toLowerCase()}">
-                    <td class="p-2 font-bold">${m.nama}</td>
-                    <td>RT.${m.rt}</td>
-                    <td>${m.ket}</td>
-                    <td><button onclick="cetakStruk(${idx})" class="bg-gray-100 p-1 rounded shadow-sm px-2 text-emerald-700 font-bold">CETAK</button></td>
+        function renderMustahiqFull() {
+            const list = document.getElementById('list-mustahiq-full');
+            list.innerHTML = db.mustahiq.map((m, i) => `
+                <tr class="border-b mus-row" data-rt="${m.rt}">
+                    <td class="py-2"><b>${m.nama}</b></td>
+                    <td>${m.rt}</td>
+                    <td>${m.kategori}</td>
+                    <td><button onclick="del('mustahiq', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
         }
 
         function filterMustahiq() {
-            let val = document.getElementById('search-rt').value.toLowerCase();
-            document.querySelectorAll('.rt-row').forEach(row => {
-                row.style.display = row.getAttribute('data-rt').includes(val) ? '' : 'none';
+            let val = document.getElementById('search-mus-rt').value.toLowerCase();
+            document.querySelectorAll('.mus-row').forEach(row => {
+                row.style.display = row.getAttribute('data-rt').toLowerCase().includes(val) ? '' : 'none';
             });
         }
 
-        function cetakStruk(idx) {
-            const data = db.mustahiq[idx];
-            document.getElementById('receipt-content').innerHTML = `
-                <table class="w-full">
-                    <tr><td width="30%">Nama Penerima</td><td>: <b>${data.nama}</b></td></tr>
-                    <tr><td>RT / Wilayah</td><td>: RT.${data.rt}</td></tr>
-                    <tr><td>Kategori</td><td>: ${data.kategori}</td></tr>
-                    <tr><td>Item Diterima</td><td>: <b>${data.ket}</b></td></tr>
-                    <tr><td>Tanggal</td><td>: ${data.tgl}</td></tr>
-                </table>
-                <p class="mt-6 text-[10px] italic">Semoga barokah dan bermanfaat bagi keluarga.</p>
-            `;
-            window.print();
+        function filterMuzakki() {
+            let val = document.getElementById('search-muz-rt').value.toLowerCase();
+            document.querySelectorAll('.muz-row').forEach(row => {
+                row.style.display = row.getAttribute('data-rt').toLowerCase().includes(val) ? '' : 'none';
+            });
         }
 
-        // --- DASHBOARD & SISTEM ---
+        function hitungBagi() {
+            const jiwa = parseFloat(document.getElementById('total-jiwa').value) || 0;
+            if (jiwa <= 0) return;
+            let tb=0, tf=0;
+            db.muzakki.forEach(m => { tb += (m.beras + m.sBeras); tf += m.uang; });
+            document.getElementById('hasil-beras').innerText = (tb / jiwa).toFixed(2) + " Kg";
+            document.getElementById('hasil-uang').innerText = "Rp " + Math.floor(tf / jiwa).toLocaleString();
+        }
+
+        function updateLaporanFinal() {
+            let b=0, uF=0, uM=0, uS=0;
+            db.muzakki.forEach(m => { b+=(m.beras+m.sBeras); uF+=m.uang; uM+=m.maal; uS+=m.sUang; });
+            document.getElementById('rep-total-muz').innerText = db.muzakki.length;
+            document.getElementById('rep-beras').innerText = b.toFixed(1);
+            document.getElementById('rep-uang').innerText = "Rp " + uF.toLocaleString();
+            document.getElementById('rep-maal').innerText = "Rp " + uM.toLocaleString();
+            document.getElementById('rep-sod').innerText = "Rp " + uS.toLocaleString();
+            document.getElementById('rep-mustahiq').innerText = db.mustahiq.length;
+            document.getElementById('tgl-laporan-now').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        // UPDATE DASHBOARD DENGAN RINCIAN MAAL & SEDEKAH
         function updateDashboard() {
-            let b = 0, uF = 0, uM = 0, uS = 0;
-            db.muzakki.forEach(m => {
-                b += (m.beras + m.sBeras);
-                uF += m.uang; uM += m.maal; uS += m.sUang;
+            let b=0, uF=0, uM=0, sU=0, sB=0;
+            db.muzakki.forEach(m => { 
+                b += m.beras; 
+                uF += m.uang; 
+                uM += m.maal; 
+                sU += m.sUang; 
+                sB += m.sBeras; 
             });
             document.getElementById('dash-beras').innerText = b.toFixed(1) + " Kg";
-            document.getElementById('dash-uang').innerText = "Rp " + (uF + uM + uS).toLocaleString();
-            document.getElementById('dtl-fitrah').innerText = "Rp " + uF.toLocaleString();
-            document.getElementById('dtl-maal').innerText = "Rp " + uM.toLocaleString();
-            document.getElementById('dtl-sod').innerText = "Rp " + uS.toLocaleString();
+            document.getElementById('dash-uang').innerText = "Rp " + uF.toLocaleString();
+            
+            // Tampilan Rincian Baru
+            document.getElementById('dash-maal').innerText = "Rp " + uM.toLocaleString();
+            document.getElementById('dash-sod-uang').innerText = "Rp " + sU.toLocaleString();
+            document.getElementById('dash-sod-beras').innerText = sB.toFixed(1) + " Kg";
+            
+            document.getElementById('stat-muzakki').innerText = db.muzakki.length;
+            document.getElementById('stat-mustahiq').innerText = db.mustahiq.length;
+        }
+
+        function del(type, i) { if(confirm("Hapus data?")) { db[type].splice(i, 1); save(); renderMustahiqFull(); updateDashboard(); } }
+        function save() { localStorage.setItem('zakat_db', JSON.stringify(db)); }
+        function saveGasUrl() { localStorage.setItem('gas_url', document.getElementById('gas-url-input').value); alert("Koneksi Cloud Disimpan!"); }
+        
+        function backupJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "Backup_Zakat_Boja.json");
+            dlAnchorElem.click();
         }
 
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.muzakki), "DATABASE_MUZAKKI");
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.mustahiq), "DATABASE_MUSTAHIQ");
-            XLSX.writeFile(wb, "Zakat_AlFurqon_Full_Data.xlsx");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.muzakki), "MUZAKKI");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.mustahiq), "MUSTAHIQ");
+            XLSX.writeFile(wb, "Laporan_Zakat_Boja_2026.xlsx");
         }
 
         function importData(event) {
@@ -376,24 +391,17 @@
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (imported.muzakki && imported.mustahiq) {
-                        db = imported;
-                        localStorage.setItem('zakat_db', JSON.stringify(db));
-                        alert("✅ Import Berhasil! Data Admin sebelumnya sudah masuk.");
+                        db = imported; save();
+                        alert("✅ Data Berhasil Masuk! Admin Baru Bisa Melanjutkan.");
                         location.reload();
                     }
-                } catch (err) { alert("❌ File JSON tidak valid!"); }
+                } catch (err) { alert("❌ File Tidak Cocok!"); }
             };
             reader.readAsText(event.target.files[0]);
         }
 
-        function resetData() {
-            if(confirm("⚠️ PERHATIAN: Semua data akan dihapus permanen. Pastikan sudah Export Excel! Lanjutkan?")) {
-                localStorage.removeItem('zakat_db');
-                location.reload();
-            }
-        }
-
-        // Jalankan dashboard saat startup
+        function resetData() { if(confirm("⚠️ Hapus Permanen?")) { localStorage.clear(); location.reload(); } }
+        
         updateDashboard();
     </script>
 </body>
