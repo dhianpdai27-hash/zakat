@@ -1,368 +1,278 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Data Segono Official - Edit & Mutasi</title>
+    <title>Zakat Al Furqon 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #f8fafc; color: #1e293b; font-family: 'Inter', sans-serif; }
-        .stat-card { background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #3b82f6; }
-        .tab-button.active { border-bottom: 4px solid #1d4ed8; color: #1d4ed8; font-weight: 800; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); z-index: 1000; overflow-y: auto; padding: 15px; }
-        .modal.active { display: flex; align-items: flex-start; justify-content: center; }
-        .kk-box { background: white; border: 1px solid #e2e8f0; border-radius: 15px; margin-bottom: 1.2rem; overflow: hidden; }
-        input, select { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px; width: 100%; font-size: 0.9rem; }
-        .label-text { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
-        #login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .list-item-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.85rem; }
+        body { font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; background-color: #f4f7f6; }
+        .nav-active { color: #10b981; border-top: 3px solid #10b981; }
+        .hidden-section { display: none; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        @media print { .no-print { display: none !important; } .print-only { display: block !important; } body { padding: 0; background: white; } }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="bg-white p-10 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 text-center">
-            <div class="text-5xl mb-4"></div>
-            <h2 class="text-2xl font-black mb-6 uppercase">Admin Login</h2>
-            <input type="password" id="input-pass" placeholder="••••" class="mb-4 text-center text-3xl border-2 p-4 rounded-2xl w-full outline-none">
-            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg">MASUK SISTEM</button>
-        </div>
+    <div id="loading" class="loading-overlay flex-col">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <p class="mt-2 font-bold text-emerald-700">Sinkronisasi Cloud...</p>
     </div>
 
-    <div id="app-content" class="hidden">
-        <header class="bg-blue-800 text-white px-6 py-8 shadow-xl text-center">
-            <h1 class="text-2xl font-black uppercase tracking-tighter" id="head-dusun">Dusun Segono</h1>
-            <p class="text-xs opacity-80" id="head-alamat">Memuat data...</p>
-        </header>
+    <header class="bg-emerald-600 text-white p-4 text-center shadow-md no-print">
+        <h1 class="text-xl font-bold uppercase">Masjid Al Furqon</h1>
+        <p class="text-[10px] tracking-widest opacity-90">SISTEM ZAKAT FITRAH 2026</p>
+    </header>
 
-        <nav class="bg-white shadow-md flex justify-around sticky top-0 z-50">
-            <button class="tab-button active py-5 px-4 text-xs font-black uppercase" data-tab="dashboard"> Beranda</button>
-            <button class="tab-button py-5 px-4 text-xs font-black uppercase" data-tab="penduduk"> Data Warga</button>
-            <button class="tab-button py-5 px-4 text-xs font-black uppercase" data-tab="pengaturan"> Panel</button>
-        </nav>
+    <div class="container mx-auto p-4 max-w-md">
 
-        <main class="container mx-auto p-4 pb-24">
-            <div id="tab-dashboard" class="tab-content">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="stat-card p-5 border-l-blue-600"><p class="label-text">Warga Aktif</p><h3 id="st-total" class="text-3xl font-black">0</h3></div>
-                    <div class="stat-card p-5 border-l-orange-500"><p class="label-text">Total KK</p><h3 id="st-kk" class="text-3xl font-black">0</h3></div>
-                    <div class="stat-card p-5 border-l-emerald-500"><p class="label-text">Laki-Laki</p><h3 id="st-laki" class="text-3xl font-black">0</h3></div>
-                    <div class="stat-card p-5 border-l-rose-500"><p class="label-text">Perempuan</p><h3 id="st-perempuan" class="text-3xl font-black">0</h3></div>
+        <section id="dashboard">
+            <h2 class="font-bold text-gray-600 mb-3 uppercase text-xs tracking-wider">Dashboard Penerimaan</h2>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg">
+                    <p class="text-[10px] opacity-80 uppercase font-bold">Total Beras</p>
+                    <p id="dash-beras" class="text-2xl font-black italic">0 Kg</p>
                 </div>
-
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-red-100 mb-6">
-                    <h2 class="text-red-700 font-black text-[10px] uppercase mb-4 tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> Laporan Mutasi (Bulan Ini)
-                    </h2>
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="bg-blue-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-blue-600 uppercase">Lahir</p><h4 id="mu-lahir" class="text-xl font-black">0</h4></div>
-                        <div class="bg-gray-100 p-3 rounded-xl"><p class="text-[9px] font-bold text-gray-600 uppercase">Meninggal</p><h4 id="mu-mati" class="text-xl font-black">0</h4></div>
-                        <div class="bg-orange-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-orange-600 uppercase">Pindah</p><h4 id="mu-pindah" class="text-xl font-black">0</h4></div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
-                    <h2 class="text-blue-800 font-black text-xs uppercase mb-4 tracking-widest border-b pb-2"> Rincian Pendidikan & Pekerjaan</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div><p class="label-text text-blue-600 mb-3">Tingkat Pendidikan</p><div id="stat-list-pendidikan" class="space-y-1"></div></div>
-                        <div><p class="label-text text-emerald-600 mb-3">Jenis Pekerjaan</p><div id="stat-list-pekerjaan" class="space-y-1"></div></div>
-                    </div>
-                </div>
-
-                <button onclick="openForm()" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-black shadow-xl uppercase text-sm">+ Tambah Warga Baru</button>
-            </div>
-
-            <div id="tab-penduduk" class="tab-content hidden">
-                <div class="bg-white p-4 rounded-xl shadow-sm border mb-4 grid grid-cols-2 gap-3">
-                    <div class="col-span-2"><label class="label-text">Pencarian</label><input type="text" id="cari" placeholder="Nama / NIK..." onkeyup="render()"></div>
-                    <div><label class="label-text">RT</label><input type="text" id="filter-rt" placeholder="RT" onkeyup="render()"></div>
-                    <div><label class="label-text">RW</label><input type="text" id="filter-rw" placeholder="RW" onkeyup="render()"></div>
-                </div>
-                <div id="list-kk"></div>
-            </div>
-
-            <div id="tab-pengaturan" class="tab-content hidden">
-                <div class="bg-white p-6 rounded-2xl border mb-6 shadow-sm">
-                    <h2 class="font-black mb-4 text-blue-900 uppercase text-xs">Identitas Wilayah</h2>
-                    <div class="space-y-3">
-                        <input type="text" id="set-dusun" placeholder="Dusun">
-                        <input type="text" id="set-desa" placeholder="Desa">
-                        <input type="text" id="set-kec" placeholder="Kecamatan">
-                        <input type="text" id="set-kab" placeholder="Kabupaten">
-                        <input type="text" id="set-prov" placeholder="Provinsi">
-                        <input type="text" id="set-pass" placeholder="Password Admin">
-                        <button onclick="saveSettings()" class="w-full bg-blue-800 text-white py-3 rounded-xl font-bold uppercase text-[10px]">Simpan Identitas</button>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border mb-6 shadow-sm">
-                    <h2 class="font-black mb-4 text-green-700 uppercase text-xs">Database Excel</h2>
-                    <input type="file" id="import-excel" accept=".xlsx, .xls" class="mb-3 text-xs">
-                    <button onclick="importData()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold mb-2 uppercase text-xs">Import Excel</button>
-                    <button onclick="exportExcel()" class="w-full bg-slate-700 text-white py-3 rounded-xl font-bold mb-2 uppercase text-xs">Export Semua Data</button>
-                    <button onclick="resetDB()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold uppercase text-xs">Reset Data</button>
+                <div class="bg-emerald-500 text-white p-4 rounded-2xl shadow-lg">
+                    <p class="text-[10px] opacity-80 uppercase font-bold">Total Uang</p>
+                    <p id="dash-uang" class="text-2xl font-black italic">Rp 0</p>
                 </div>
             </div>
-        </main>
-
-        <div id="modal-form" class="modal">
-            <div class="bg-white w-full max-w-5xl rounded-[2.5rem] overflow-hidden my-4 shadow-2xl">
-                <div class="bg-blue-800 p-6 text-white flex justify-between items-center">
-                    <h2 id="modal-title" class="font-black uppercase text-xs tracking-widest">Entri Data Penduduk</h2>
-                    <button onclick="closeForm()" class="text-3xl">&times;</button>
+            
+            <div class="card border-l-4 border-orange-400">
+                <h3 class="text-xs font-bold text-gray-400 mb-2 uppercase">Detail Kas Saat Ini</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span>Zakat Maal:</span> <span id="dtl-maal" class="font-bold">Rp 0</span></div>
+                    <div class="flex justify-between"><span>Sodaqoh Uang:</span> <span id="dtl-sod-uang" class="font-bold">Rp 0</span></div>
+                    <div class="flex justify-between border-t pt-2 font-bold text-emerald-600"><span>Grand Total:</span> <span id="dtl-total">Rp 0</span></div>
                 </div>
-                <form id="form-data" class="p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="hidden" name="id" id="form-id">
-                    <div class="md:col-span-3 border-b font-black text-[10px] text-blue-700 uppercase">I. Data Kartu Keluarga</div>
-                    <input type="text" name="noKK" placeholder="No. KK" required>
-                    <input type="text" name="namaKepala" placeholder="Kepala Keluarga" required>
-                    <input type="text" name="alamat" placeholder="Alamat">
-                    <input type="text" name="rt" placeholder="RT" required>
-                    <input type="text" name="rw" placeholder="RW" required>
+            </div>
+        </section>
+
+        <section id="muzakki" class="hidden-section">
+            <div class="card">
+                <h2 class="text-lg font-bold mb-4 text-emerald-700 border-b pb-2"><i class="fas fa-edit mr-2"></i>Entri Muzakki</h2>
+                <form id="form-muzakki" class="space-y-4">
+                    <input type="date" id="tgl-zakat" class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:border-emerald-500" required>
+                    <input type="text" id="nama-muzakki" placeholder="Nama Muzakki" class="w-full p-3 border rounded-xl" required>
+                    <textarea id="alamat-muzakki" placeholder="Alamat" rows="2" class="w-full p-3 border rounded-xl"></textarea>
                     
-                    <div class="md:col-span-3 border-b font-black text-[10px] text-blue-700 uppercase mt-4">II. Data Pribadi & Status Mutasi</div>
-                    <input type="text" name="nik" placeholder="NIK" required>
-                    <input type="text" name="nama" placeholder="Nama Lengkap" required>
-                    <select name="jk"><option value="L">Laki-Laki</option><option value="P">Perempuan</option></select>
-                    <input type="text" name="tempatLahir" placeholder="Tempat Lahir">
-                    <input type="date" name="tglLahir">
-                    <select name="status">
-                        <option value="HIDUP">STATUS: HIDUP (AKTIF)</option>
-                        <option value="LAHIR">STATUS: LAHIR (AKTIF)</option>
-                        <option value="MENINGGAL">STATUS: MENINGGAL (ARSIP)</option>
-                        <option value="PINDAH">STATUS: PINDAH (ARSIP)</option>
-                    </select>
-                    <input type="text" name="pendidikan" placeholder="Pendidikan">
-                    <input type="text" name="pekerjaan" placeholder="Pekerjaan">
-                    <input type="text" name="hubungan" placeholder="Hubungan">
-                    <input type="text" name="ayah" placeholder="Ayah">
-                    <input type="text" name="ibu" placeholder="Ibu">
-                    <input type="hidden" name="tglUpdate" id="tglUpdate">
-                    <button type="submit" id="btn-submit" class="md:col-span-3 bg-blue-700 text-white py-5 rounded-2xl font-black uppercase shadow-lg">Simpan Data</button>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 p-2 rounded-xl">
+                            <label class="text-[10px] font-bold text-gray-400">FITRAH BERAS (KG)</label>
+                            <input type="number" step="0.1" id="z-beras" placeholder="0" class="w-full bg-transparent font-bold">
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded-xl">
+                            <label class="text-[10px] font-bold text-gray-400">FITRAH UANG</label>
+                            <select id="z-uang" class="w-full bg-transparent font-bold">
+                                <option value="0">Pilih</option>
+                                <option value="45000">45.000</option>
+                                <option value="50000">50.000</option>
+                                <option value="custom">Manual</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="number" id="z-maal" placeholder="Zakat Maal (Rp)" class="w-full p-3 border rounded-xl">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="s-uang" placeholder="Sodaqoh Uang" class="w-full p-3 border rounded-xl">
+                        <input type="number" step="0.1" id="s-beras" placeholder="Sodaqoh Beras" class="w-full p-3 border rounded-xl">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 text-white p-4 rounded-2xl font-bold shadow-lg">SIMPAN DATA</button>
                 </form>
             </div>
-        </div>
+        </section>
+
+        <section id="mustahiq" class="hidden-section">
+            <div class="card">
+                <h2 class="text-lg font-bold mb-4 text-orange-600 border-b pb-2"><i class="fas fa-truck-loading mr-2"></i>Entri Mustahiq</h2>
+                <form id="form-mustahiq" class="space-y-4">
+                    <input type="text" id="nama-mustahiq" placeholder="Nama Penerima" class="w-full p-3 border rounded-xl" required>
+                    <input type="text" id="alamat-mustahiq" placeholder="Alamat" class="w-full p-3 border rounded-xl">
+                    <select id="kategori-mustahiq" class="w-full p-3 border rounded-xl font-bold">
+                        <option value="Fakir">Fakir</option>
+                        <option value="Miskin">Miskin</option>
+                        <option value="Fi Sabilillah">Fi Sabilillah</option>
+                    </select>
+                    <textarea id="ket-mustahiq" placeholder="Keterangan Penyaluran" class="w-full p-3 border rounded-xl"></textarea>
+                    <button type="submit" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-bold">SIMPAN & CETAK</button>
+                </form>
+            </div>
+
+            <div id="print-area" class="mt-4 p-6 border-2 border-dashed border-gray-400 bg-white hidden">
+                <div class="text-center mb-4">
+                    <h3 class="font-bold">MASJID AL FURQON</h3>
+                    <p class="text-xs">Tanda Terima Penyaluran Zakat 2026</p>
+                </div>
+                <div id="print-content" class="text-xs space-y-1"></div>
+                <button onclick="window.print()" class="no-print mt-4 w-full bg-black text-white p-2 text-xs font-bold rounded">PRINT STRUK</button>
+            </div>
+        </section>
+
+        <section id="settings" class="hidden-section">
+            <div class="card">
+                <h2 class="font-bold text-gray-700 mb-4 uppercase text-sm border-b pb-2">Pengaturan Sistem</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-emerald-600 uppercase">Google Apps Script URL</label>
+                        <input type="password" id="gas-url-input" placeholder="https://script.google.com/..." class="w-full p-3 border rounded-xl text-xs bg-emerald-50 focus:bg-white">
+                        <button onclick="saveGasUrl()" class="w-full bg-emerald-100 text-emerald-700 p-2 rounded-lg text-xs mt-2 font-bold uppercase">Update URL</button>
+                    </div>
+
+                    <hr>
+
+                    <button onclick="exportToExcel()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold flex items-center justify-center">
+                        <i class="fas fa-file-excel mr-2"></i> EXPORT EXCEL
+                    </button>
+                    
+                    <button onclick="resetData()" class="w-full bg-red-50 text-red-600 p-3 rounded-xl font-bold text-xs border border-red-100">
+                        HAPUS SEMUA DATA LOKAL
+                    </button>
+                </div>
+            </div>
+        </section>
+
     </div>
 
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-2 no-print shadow-xl">
+        <div class="nav-btn nav-active text-center p-2 cursor-pointer w-1/4" onclick="nav('dashboard', this)">
+            <i class="fas fa-chart-bar text-lg"></i><p class="text-[10px] font-bold">Dash</p>
+        </div>
+        <div class="nav-btn text-gray-400 text-center p-2 cursor-pointer w-1/4" onclick="nav('muzakki', this)">
+            <i class="fas fa-hand-holding-usd text-lg"></i><p class="text-[10px] font-bold">Muzakki</p>
+        </div>
+        <div class="nav-btn text-gray-400 text-center p-2 cursor-pointer w-1/4" onclick="nav('mustahiq', this)">
+            <i class="fas fa-user-check text-lg"></i><p class="text-[10px] font-bold">Mustahiq</p>
+        </div>
+        <div class="nav-btn text-gray-400 text-center p-2 cursor-pointer w-1/4" onclick="nav('settings', this)">
+            <i class="fas fa-tools text-lg"></i><p class="text-[10px] font-bold">Setting</p>
+        </div>
+    </nav>
+
     <script>
-        let db = JSON.parse(localStorage.getItem('segono_db')) || [];
-        let config = JSON.parse(localStorage.getItem('segono_cfg')) || { pass: "1234", dusun: "Segono", desa: "Segono", kec: "-", kab: "-", prov: "-" };
+        // Database & Config
+        let db = JSON.parse(localStorage.getItem('zakat_db')) || { muzakki: [], mustahiq: [] };
+        
+        // Ambil URL GAS dari memori saat aplikasi dibuka
+        document.getElementById('gas-url-input').value = localStorage.getItem('gas_url') || "";
 
-        function handleLogin() {
-            if(document.getElementById('input-pass').value === config.pass) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-content').classList.remove('hidden');
-                init();
-            } else { Swal.fire('Error', 'Password Salah!', 'error'); }
+        function nav(target, el) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
+            document.getElementById(target).classList.remove('hidden-section');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-emerald-600'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.add('text-gray-400'));
+            el.classList.add('nav-active');
+            el.classList.remove('text-gray-400');
+            if(target === 'dashboard') updateDashboard();
         }
 
-        function init() {
-            document.getElementById('set-pass').value = config.pass;
-            document.getElementById('set-dusun').value = config.dusun;
-            document.getElementById('set-desa').value = config.desa;
-            document.getElementById('set-kec').value = config.kec;
-            document.getElementById('set-kab').value = config.kab;
-            document.getElementById('set-prov').value = config.prov;
-            refreshUI(); render();
+        function saveGasUrl() {
+            const url = document.getElementById('gas-url-input').value;
+            localStorage.setItem('gas_url', url);
+            alert("URL Apps Script Berhasil Diperbarui!");
         }
 
-        function saveSettings() {
-            config = {
-                pass: document.getElementById('set-pass').value,
-                dusun: document.getElementById('set-dusun').value,
-                desa: document.getElementById('set-desa').value,
-                kec: document.getElementById('set-kec').value,
-                kab: document.getElementById('set-kab').value,
-                prov: document.getElementById('set-prov').value
+        async function sendToCloud(type, data) {
+            const url = localStorage.getItem('gas_url');
+            if (!url) return console.log("URL Cloud Belum Diatur");
+
+            document.getElementById('loading').style.display = 'flex';
+            try {
+                await fetch(url + "?type=" + type, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(data)
+                });
+            } catch (e) {
+                console.error("Gagal sinkronisasi", e);
+            }
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Logic Muzakki
+        document.getElementById('form-muzakki').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const zUangVal = document.getElementById('z-uang').value;
+            const finalZUang = zUangVal === 'custom' ? parseFloat(prompt("Nominal Uang:")) : parseFloat(zUangVal);
+
+            const payload = {
+                tgl: document.getElementById('tgl-zakat').value,
+                nama: document.getElementById('nama-muzakki').value,
+                alamat: document.getElementById('alamat-muzakki').value,
+                beras: parseFloat(document.getElementById('z-beras').value) || 0,
+                uang: finalZUang || 0,
+                maal: parseFloat(document.getElementById('z-maal').value) || 0,
+                sUang: parseFloat(document.getElementById('s-uang').value) || 0,
+                sBeras: parseFloat(document.getElementById('s-beras').value) || 0
             };
-            localStorage.setItem('segono_cfg', JSON.stringify(config));
-            refreshUI(); Swal.fire('Berhasil', 'Pengaturan Disimpan', 'success');
-        }
 
-        function refreshUI() {
-            document.getElementById('head-dusun').innerText = "Dusun " + config.dusun;
-            document.getElementById('head-alamat').innerText = `Desa ${config.desa}, Kec. ${config.kec}, Kab. ${config.kab}, Prov. ${config.prov}`;
-        }
-
-        function importData() {
-            const f = document.getElementById('import-excel').files[0];
-            if(!f) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                const now = new Date().toISOString().split('T')[0];
-                db = [...db, ...json.map(x => ({
-                    ...x, 
-                    id: x.id || Date.now() + Math.random(), 
-                    status: (x.status || 'HIDUP').toUpperCase(),
-                    tglUpdate: x.tglUpdate || now
-                }))];
-                localStorage.setItem('segono_db', JSON.stringify(db));
-                render(); Swal.fire('Import Berhasil!', '', 'success');
-            };
-            reader.readAsArrayBuffer(f);
-        }
-
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-                btn.classList.add('active');
-                document.getElementById(`tab-${btn.dataset.tab}`).classList.remove('hidden');
-                render();
-            });
+            db.muzakki.push(payload);
+            localStorage.setItem('zakat_db', JSON.stringify(db));
+            await sendToCloud('muzakki', payload);
+            
+            alert("Penerimaan Disimpan!");
+            e.target.reset();
+            updateDashboard();
         });
 
-        function openForm() { 
-            document.getElementById('modal-title').innerText = "Entri Data Penduduk";
-            document.getElementById('form-id').value = "";
-            document.getElementById('btn-submit').innerText = "SIMPAN WARGA BARU";
-            document.getElementById('modal-form').classList.add('active'); 
-        }
-
-        function closeForm() { 
-            document.getElementById('modal-form').classList.remove('active'); 
-            document.getElementById('form-data').reset(); 
-        }
-
-        function editWarga(id) {
-            const data = db.find(x => x.id == id);
-            if(data) {
-                const form = document.getElementById('form-data');
-                for (let key in data) {
-                    if(form.elements[key]) form.elements[key].value = data[key];
-                }
-                document.getElementById('modal-title').innerText = "Edit Data: " + data.nama;
-                document.getElementById('btn-submit').innerText = "SIMPAN PERUBAHAN";
-                document.getElementById('modal-form').classList.add('active');
-            }
-        }
-
-        document.getElementById('form-data').onsubmit = function(e) {
+        // Logic Mustahiq
+        document.getElementById('form-mustahiq').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = Object.fromEntries(new FormData(e.target));
-            const now = new Date().toISOString().split('T')[0];
-            
-            if(formData.id) {
-                // Proses Update
-                const idx = db.findIndex(x => x.id == formData.id);
-                db[idx] = {...db[idx], ...formData, tglUpdate: now};
-            } else {
-                // Proses Baru
-                formData.id = Date.now();
-                formData.tglUpdate = now;
-                db.push(formData);
-            }
-            
-            localStorage.setItem('segono_db', JSON.stringify(db));
-            render(); closeForm(); 
-            Swal.fire('Berhasil!', 'Data telah diperbarui.', 'success');
-        };
+            const payload = {
+                tgl: new Date().toLocaleDateString('id-ID'),
+                nama: document.getElementById('nama-mustahiq').value,
+                alamat: document.getElementById('alamat-mustahiq').value,
+                kategori: document.getElementById('kategori-mustahiq').value,
+                ket: document.getElementById('ket-mustahiq').value
+            };
 
-        function render() {
-            const q = document.getElementById('cari').value.toLowerCase();
-            const rt = document.getElementById('filter-rt').value;
-            const rw = document.getElementById('filter-rw').value;
-            const curMonth = new Date().toISOString().split('-').slice(0,2).join('-');
+            db.mustahiq.push(payload);
+            localStorage.setItem('zakat_db', JSON.stringify(db));
+            await sendToCloud('mustahiq', payload);
 
-            const aktif = db.filter(x => x.status === 'HIDUP' || x.status === 'LAHIR');
-            document.getElementById('st-total').innerText = aktif.length;
-            document.getElementById('st-laki').innerText = aktif.filter(x => x.jk === 'L').length;
-            document.getElementById('st-perempuan').innerText = aktif.filter(x => x.jk === 'P').length;
+            document.getElementById('print-area').classList.remove('hidden');
+            document.getElementById('print-content').innerHTML = `
+                <p><b>Nama:</b> ${payload.nama}</p>
+                <p><b>Kategori:</b> ${payload.kategori}</p>
+                <p><b>Keterangan:</b> ${payload.ket}</p>
+                <p class="mt-4 italic">Tanggal: ${payload.tgl}</p>
+            `;
+            e.target.reset();
+        });
 
-            const mutasiBulanIni = db.filter(x => (x.tglUpdate || "").startsWith(curMonth));
-            document.getElementById('mu-lahir').innerText = mutasiBulanIni.filter(x => x.status === 'LAHIR').length;
-            document.getElementById('mu-mati').innerText = mutasiBulanIni.filter(x => x.status === 'MENINGGAL').length;
-            document.getElementById('mu-pindah').innerText = mutasiBulanIni.filter(x => x.status === 'PINDAH').length;
-
-            const eduStat = {}; const jobStat = {};
-            aktif.forEach(x => {
-                let edu = (x.pendidikan || "TIDAK SEKOLAH").toUpperCase();
-                let job = (x.pekerjaan || "TIDAK BEKERJA").toUpperCase();
-                eduStat[edu] = (eduStat[edu] || 0) + 1;
-                jobStat[job] = (jobStat[job] || 0) + 1;
+        function updateDashboard() {
+            let bTotal = 0, uFitrah = 0, uMaal = 0, uSod = 0;
+            db.muzakki.forEach(m => {
+                bTotal += (m.beras + m.sBeras);
+                uFitrah += m.uang;
+                uMaal += m.maal;
+                uSod += m.sUang;
             });
-            document.getElementById('stat-list-pendidikan').innerHTML = Object.keys(eduStat).map(k => `<div class="list-item-stat"><span>${k}</span><span class="font-black">${eduStat[k]}</span></div>`).join('');
-            document.getElementById('stat-list-pekerjaan').innerHTML = Object.keys(jobStat).map(k => `<div class="list-item-stat"><span>${k}</span><span class="font-black text-emerald-600">${jobStat[k]}</span></div>`).join('');
-
-            const filtered = aktif.filter(x => {
-                const matchQ = (x.nama||"").toLowerCase().includes(q) || (x.nik||"").includes(q);
-                const matchRT = rt ? x.rt == rt : true;
-                const matchRW = rw ? x.rw == rw : true;
-                return matchQ && matchRT && matchRW;
-            });
-
-            const groups = {};
-            filtered.forEach(p => { if(!groups[p.noKK]) groups[p.noKK] = []; groups[p.noKK].push(p); });
-            document.getElementById('st-kk').innerText = Object.keys(groups).length;
-
-            const list = document.getElementById('list-kk');
-            list.innerHTML = '';
-            for(let kk in groups) {
-                const h = groups[kk][0];
-                list.innerHTML += `
-                    <div class="kk-box">
-                        <div class="bg-blue-50 p-4 border-b text-[10px] font-black uppercase flex justify-between items-center">
-                            <span> ${h.namaKepala} (RT ${h.rt}/RW ${h.rw})</span>
-                            <button onclick="ubahStatusKK('${kk}')" class="text-blue-500 bg-white px-2 py-1 rounded border border-blue-200 text-[8px]">MUTASI 1 KK</button>
-                        </div>
-                        <div class="p-1">${groups[kk].map(m => `<div class="p-3 border-b text-[10px] flex justify-between items-center">
-                            <span class="flex-1"><b>${m.nama}</b> (${m.hubungan})</span> 
-                            <div class="flex gap-4">
-                                <button onclick="editWarga('${m.id}')" class="text-blue-500 font-bold"> Edit</button>
-                                <button onclick="ubahStatusIndividu('${m.id}')" class="text-gray-400"> Mutasi</button>
-                            </div>
-                        </div>`).join('')}</div>
-                    </div>`;
-            }
+            document.getElementById('dash-beras').innerText = bTotal.toFixed(1) + " Kg";
+            document.getElementById('dash-uang').innerText = "Rp " + (uFitrah + uMaal + uSod).toLocaleString();
+            document.getElementById('dtl-maal').innerText = "Rp " + uMaal.toLocaleString();
+            document.getElementById('dtl-sod-uang').innerText = "Rp " + uSod.toLocaleString();
+            document.getElementById('dtl-total').innerText = "Rp " + (uFitrah + uMaal + uSod).toLocaleString();
         }
 
-        async function ubahStatusIndividu(id) {
-            const { value: status } = await Swal.fire({
-                title: 'Ubah Status Warga',
-                input: 'select',
-                inputOptions: { 'HIDUP': 'Hidup', 'MENINGGAL': 'Meninggal', 'PINDAH': 'Pindah' },
-                showCancelButton: true
-            });
-            if (status) {
-                const idx = db.findIndex(x => x.id == id);
-                db[idx].status = status;
-                db[idx].tglUpdate = new Date().toISOString().split('T')[0];
-                localStorage.setItem('segono_db', JSON.stringify(db));
-                render();
-                Swal.fire('Terarsip', 'Status berhasil diperbarui', 'success');
-            }
-        }
-
-        async function ubahStatusKK(noKK) {
-            const { value: status } = await Swal.fire({
-                title: 'Mutasi Satu Keluarga',
-                input: 'select',
-                inputOptions: { 'PINDAH': 'Pindah Domisili', 'MENINGGAL': 'Meninggal (Seluruhnya)' },
-                showCancelButton: true
-            });
-            if (status) {
-                db.forEach((x, idx) => {
-                    if(x.noKK === noKK) {
-                        db[idx].status = status;
-                        db[idx].tglUpdate = new Date().toISOString().split('T')[0];
-                    }
-                });
-                localStorage.setItem('segono_db', JSON.stringify(db));
-                render();
-                Swal.fire('Berhasil', 'Seluruh keluarga telah dimutasi', 'success');
-            }
-        }
-
-        function resetDB() { if(confirm('Hapus selamanya?')) { db = []; localStorage.setItem('segono_db', JSON.stringify(db)); render(); } }
-        function exportExcel() {
-            const ws = XLSX.utils.json_to_sheet(db);
+        function exportToExcel() {
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Data_Lengkap");
-            XLSX.writeFile(wb, `Database_Segono_Lengkap.xlsx`);
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.muzakki), "MUZAKKI");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.mustahiq), "MUSTAHIQ");
+            XLSX.writeFile(wb, "Laporan_Zakat_Furqon.xlsx");
         }
+
+        function resetData() {
+            if(confirm("Hapus permanen data di HP ini?")) {
+                localStorage.removeItem('zakat_db');
+                location.reload();
+            }
+        }
+
+        updateDashboard();
     </script>
 </body>
 </html>
