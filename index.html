@@ -116,8 +116,8 @@
                     <input type="text" id="search-muz-rt" onkeyup="filterMuzakki()" placeholder="Cari RT..." class="p-1 border rounded text-[10px] w-20">
                 </div>
                 <div class="table-res">
-                    <table class="w-full text-left">
-                        <thead><tr class="text-gray-400"><th>Nama</th><th>RT</th><th>Beras</th><th>Uang</th></tr></thead>
+                    <table class="w-full text-left text-[10px]">
+                        <thead><tr class="text-gray-400 border-b"><th>Tgl</th><th>Nama</th><th>RT</th><th>Z.Beras</th><th>Z.Uang</th><th>Maal</th><th>S.Uang</th><th>S.Beras</th><th>Aksi</th></tr></thead>
                         <tbody id="list-muzakki-full"></tbody>
                     </table>
                 </div>
@@ -268,7 +268,7 @@
                 sBeras: parseFloat(document.getElementById('s-beras').value) || 0
             };
             db.muzakki.unshift(p); save(); sync('muzakki', p);
-            e.target.reset(); alert("Data Muzakki Berhasil Disimpan!");
+            e.target.reset(); alert("Data Disimpan!");
             updateDashboard();
         });
 
@@ -281,7 +281,7 @@
                 tgl: new Date().toLocaleDateString('id-ID')
             };
             db.mustahiq.unshift(p); save(); sync('mustahiq', p);
-            e.target.reset(); alert("Data Mustahiq Berhasil Disimpan!");
+            e.target.reset(); alert("Data Disimpan!");
             updateDashboard();
         });
 
@@ -289,12 +289,34 @@
             const list = document.getElementById('list-muzakki-full');
             list.innerHTML = db.muzakki.map((m, i) => `
                 <tr class="border-b muz-row" data-rt="${m.rt}">
-                    <td class="py-2"><b>${m.nama}</b></td>
+                    <td class="py-2">${m.tgl}</td>
+                    <td><b>${m.nama}</b></td>
                     <td>${m.rt}</td>
-                    <td>${m.beras + m.sBeras} Kg</td>
-                    <td>${m.uang.toLocaleString()}</td>
+                    <td>${m.beras}</td>
+                    <td>${m.uang}</td>
+                    <td>${m.maal}</td>
+                    <td>${m.sUang}</td>
+                    <td>${m.sBeras}</td>
+                    <td>
+                        <button onclick="editMuzakki(${i})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button>
+                        <button onclick="del('muzakki', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button>
+                    </td>
                 </tr>
             `).join('');
+        }
+
+        function editMuzakki(i) {
+            const m = db.muzakki[i];
+            document.getElementById('tgl-zakat').value = m.tgl;
+            document.getElementById('nama-muzakki').value = m.nama;
+            document.getElementById('rt-muzakki').value = m.rt;
+            document.getElementById('z-beras').value = m.beras;
+            document.getElementById('z-uang').value = m.uang;
+            document.getElementById('z-maal').value = m.maal;
+            document.getElementById('s-uang').value = m.sUang;
+            document.getElementById('s-beras').value = m.sBeras;
+            db.muzakki.splice(i, 1);
+            nav('entri', document.querySelector('[onclick*="entri"]'));
         }
 
         function renderMustahiqFull() {
@@ -344,7 +366,6 @@
             document.getElementById('tgl-laporan-now').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         }
 
-        // UPDATE DASHBOARD DENGAN RINCIAN MAAL & SEDEKAH
         function updateDashboard() {
             let b=0, uF=0, uM=0, sU=0, sB=0;
             db.muzakki.forEach(m => { 
@@ -356,8 +377,6 @@
             });
             document.getElementById('dash-beras').innerText = b.toFixed(1) + " Kg";
             document.getElementById('dash-uang').innerText = "Rp " + uF.toLocaleString();
-            
-            // Tampilan Rincian Baru
             document.getElementById('dash-maal').innerText = "Rp " + uM.toLocaleString();
             document.getElementById('dash-sod-uang').innerText = "Rp " + sU.toLocaleString();
             document.getElementById('dash-sod-beras').innerText = sB.toFixed(1) + " Kg";
@@ -366,44 +385,31 @@
             document.getElementById('stat-mustahiq').innerText = db.mustahiq.length;
         }
 
-        function del(type, i) { if(confirm("Hapus data?")) { db[type].splice(i, 1); save(); renderMustahiqFull(); updateDashboard(); } }
+        function del(type, i) { if(confirm("Hapus data?")) { db[type].splice(i, 1); save(); renderMuzakkiFull(); renderMustahiqFull(); updateDashboard(); } }
         function save() { localStorage.setItem('zakat_db', JSON.stringify(db)); }
-        function saveGasUrl() { localStorage.setItem('gas_url', document.getElementById('gas-url-input').value); alert("Koneksi Cloud Disimpan!"); }
+        function saveGasUrl() { localStorage.setItem('gas_url', document.getElementById('gas-url-input').value); alert("Koneksi Disimpan!"); }
         
         function backupJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", "Backup_Zakat_Boja.json");
-            dlAnchorElem.click();
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "Backup_Zakat.json"); dl.click();
         }
 
         function exportToExcel() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.muzakki), "MUZAKKI");
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.mustahiq), "MUSTAHIQ");
-            XLSX.writeFile(wb, "Laporan_Zakat_Boja_2026.xlsx");
+            XLSX.writeFile(wb, "Laporan_Zakat_2026.xlsx");
         }
 
         function importData(event) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported.muzakki && imported.mustahiq) {
-                        db = imported; save();
-                        alert("✅ Data Berhasil Masuk! Admin Baru Bisa Melanjutkan.");
-                        location.reload();
-                    }
-                } catch (err) { alert("❌ File Tidak Cocok!"); }
-            };
-            reader.readAsText(event.target.files[0]);
+            const r = new FileReader();
+            r.onload = function(e) { try { db = JSON.parse(e.target.result); save(); location.reload(); } catch(err) { alert("File Salah!"); } };
+            r.readAsText(event.target.files[0]);
         }
 
-        function resetData() { if(confirm("⚠️ Hapus Permanen?")) { localStorage.clear(); location.reload(); } }
+        function resetData() { if(confirm("Hapus Semua Data?")) { localStorage.clear(); location.reload(); } }
         
         updateDashboard();
     </script>
 </body>
 </html>
-
