@@ -14,12 +14,7 @@
         .card { background: white; padding: 18px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .table-res { overflow-x: auto; max-height: 450px; overflow-y: auto; font-size: 11px; }
         th { position: sticky; top: 0; background: #f1f5f9; z-index: 10; padding: 8px; }
-        @media print { 
-            .no-print { display: none !important; } 
-            .print-only { display: block !important; } 
-            body { background: white; padding: 0; }
-            .card { box-shadow: none; border: 1px solid #eee; margin: 0; }
-        }
+        @media print { .no-print { display: none !important; } .print-only { display: block !important; } body { background: white; padding: 0; } .card { box-shadow: none; border: 1px solid #eee; margin: 0; } }
     </style>
 </head>
 <body>
@@ -30,7 +25,6 @@
     </header>
 
     <div class="container mx-auto p-4 max-w-2xl">
-
         <section id="dashboard">
             <div class="card bg-emerald-800 text-white">
                 <h2 class="text-xs font-bold uppercase opacity-70 mb-4 tracking-widest">Kondisi Kas Saat Ini</h2>
@@ -38,10 +32,11 @@
                     <div><p class="text-2xl font-black" id="dash-beras">0 Kg</p><p class="text-[10px] opacity-70 uppercase">Total Beras Fitrah</p></div>
                     <div><p class="text-2xl font-black" id="dash-uang">Rp 0</p><p class="text-[10px] opacity-70 uppercase">Total Uang Fitrah</p></div>
                 </div>
-                <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-emerald-900/50 p-2 rounded-lg"><p id="dash-maal" class="text-sm font-bold">Rp 0</p><p class="text-[8px] opacity-70 uppercase">Zakat Maal</p></div>
-                    <div class="bg-emerald-900/50 p-2 rounded-lg"><p id="dash-sod-uang" class="text-sm font-bold">Rp 0</p><p class="text-[8px] opacity-70 uppercase">Sod. Uang</p></div>
-                    <div class="bg-emerald-900/50 p-2 rounded-lg"><p id="dash-sod-beras" class="text-sm font-bold">0 Kg</p><p class="text-[8px] opacity-70 uppercase">Sod. Beras</p></div>
+                <div class="grid grid-cols-4 gap-1 text-center">
+                    <div class="bg-emerald-900/50 p-2 rounded-lg"><p id="dash-maal" class="text-xs font-bold">Rp 0</p><p class="text-[8px] opacity-70 uppercase">Maal</p></div>
+                    <div class="bg-emerald-900/50 p-2 rounded-lg"><p id="dash-fidyah" class="text-xs font-bold">Rp 0</p><p class="text-[8px] opacity-70 uppercase">Fidyah</p></div>
+                    <div class="bg-emerald-900/50 p-2 rounded-lg"><p id="dash-sod-uang" class="text-xs font-bold">Rp 0</p><p class="text-[8px] opacity-70 uppercase">Sod. Uang</p></div>
+                    <div class="bg-emerald-900/50 p-2 rounded-lg"><p id="dash-sod-beras" class="text-xs font-bold">0 Kg</p><p class="text-[8px] opacity-70 uppercase">Sod. Beras</p></div>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-5">
@@ -65,8 +60,9 @@
                             <option value="0">Pilih Nominal Uang</option><option value="45000">45.000</option><option value="50000">50.000</option>
                         </select>
                     </div>
-                    <div class="grid grid-cols-3 gap-1">
+                    <div class="grid grid-cols-4 gap-1">
                         <input type="number" id="z-maal" placeholder="Maal" class="p-2 border rounded-lg text-[10px]">
+                        <input type="number" id="z-fidyah" placeholder="Fidyah" class="p-2 border rounded-lg text-[10px]">
                         <input type="number" id="s-uang" placeholder="Sod Rp" class="p-2 border rounded-lg text-[10px]">
                         <input type="number" step="0.1" id="s-beras" placeholder="Sod Kg" class="p-2 border rounded-lg text-[10px]">
                     </div>
@@ -94,22 +90,17 @@
                     <h2 class="text-sm font-bold uppercase text-emerald-800">Muzakki</h2>
                     <input type="text" id="search-muz-rt" onkeyup="filterMuzakki()" placeholder="Cari RT..." class="p-1 border rounded text-[10px] w-20">
                 </div>
-                <div id="rt-summary" class="bg-emerald-50 p-2 rounded-lg mb-2 text-[9px] font-bold text-emerald-800 hidden"></div>
                 <div class="table-res">
                     <table class="w-full text-left text-[10px]">
-                        <thead><tr class="text-gray-400 border-b"><th>Tgl</th><th>Nama</th><th>RT</th><th>Z.Beras</th><th>Z.Uang</th><th>Maal</th><th>S.Uang</th><th>S.Beras</th><th>Aksi</th></tr></thead>
+                        <thead><tr class="text-gray-400 border-b"><th>Tgl</th><th>Nama</th><th>RT</th><th>ZB</th><th>ZU</th><th>Maal</th><th>Fid</th><th>SU</th><th>SB</th><th>Aksi</th></tr></thead>
                         <tbody id="list-muzakki-full"></tbody>
                     </table>
                 </div>
             </div>
-
             <div class="card">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-bold uppercase text-orange-800">Mustahiq</h2>
-                    <div class="flex gap-1">
-                        <input type="text" id="search-mus-rt" onkeyup="filterMustahiq()" placeholder="Filter RT..." class="p-1 border rounded text-[10px] w-20">
-                        <button onclick="window.print()" class="bg-black text-white px-2 py-1 rounded text-[9px] font-bold"><i class="fas fa-print"></i> RT INI</button>
-                    </div>
+                    <input type="text" id="search-mus-rt" onkeyup="filterMustahiq()" placeholder="Filter RT..." class="p-1 border rounded text-[10px] w-20">
                 </div>
                 <div class="table-res">
                     <table class="w-full text-left">
@@ -139,7 +130,6 @@
                     <div class="p-2 border-t border-slate-700 pt-3 flex justify-between items-center"><span class="text-[10px] uppercase opacity-70">Hasil / Jiwa:</span><span class="text-xs font-bold text-yellow-400" id="hasil-per-jiwa">0 Kg | Rp 0</span></div>
                 </div>
             </div>
-
             <div id="format-laporan-cetak" class="card">
                 <div class="text-center mb-6">
                     <h2 class="text-lg font-black uppercase">LAPORAN AKHIR PANITIA ZAKAT</h2>
@@ -154,6 +144,7 @@
                             <tr class="border-b"><td>Zakat Fitrah Beras</td><td id="rep-beras" class="text-right font-bold">0</td><td class="pl-2">Kg</td></tr>
                             <tr class="border-b"><td>Zakat Fitrah Uang</td><td id="rep-uang" class="text-right font-bold">0</td><td class="pl-2"></td></tr>
                             <tr class="border-b"><td>Zakat Maal</td><td id="rep-maal" class="text-right font-bold">0</td><td class="pl-2"></td></tr>
+                            <tr class="border-b"><td>Fidyah</td><td id="rep-fidyah" class="text-right font-bold">0</td><td class="pl-2"></td></tr>
                             <tr class="border-b text-emerald-700"><td>Sodaqoh Beras</td><td id="rep-sod-beras" class="text-right font-bold">0</td><td class="pl-2">Kg</td></tr>
                             <tr class="border-b text-emerald-700"><td>Sodaqoh Uang</td><td id="rep-sod-uang" class="text-right font-bold">0</td><td class="pl-2"></td></tr>
                         </table>
@@ -165,10 +156,6 @@
                             <tr class="border-b"><td>Biaya Operasional/Parsel</td><td id="rep-out-ops" class="text-right font-bold">0</td><td class="pl-2"></td></tr>
                             <tr class="bg-gray-50 font-bold"><td>Diterima per Fakir Miskin (<span id="rep-jiwa-fakir">0</span> Jiwa)</td><td id="rep-final-per-jiwa" class="text-right text-orange-700">0</td><td class="pl-2"></td></tr>
                         </table>
-                    </div>
-                    <div class="pt-10 flex justify-between px-4">
-                        <div class="text-center">Mengetahui,<br>Ketua TAKMIR<br><br><br><br>( ..................... )</div>
-                        <div class="text-center">Boja, <span id="tgl-laporan-now"></span><br>Ketua Panitia<br><br><br><br>( ..................... )</div>
                     </div>
                 </div>
                 <button onclick="window.print()" class="no-print mt-10 w-full bg-blue-600 text-white p-3 rounded-xl font-black shadow-lg">PRINT LAPORAN AKHIR</button>
@@ -196,7 +183,6 @@
                 </div>
             </div>
         </section>
-
     </div>
 
     <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 no-print shadow-2xl z-50">
@@ -221,13 +207,15 @@
             if(target === 'laporan') { updateLaporanFinal(); hitungBagi(); }
         }
 
-        async function sync(type, data) {
+        async function sendToSheets(data) {
             const url = localStorage.getItem('gas_url');
-            if (!url) return;
-            try { await fetch(url + "?type=" + type, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }); } catch (e) {}
+            if(url) {
+                try { await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }); } 
+                catch(e) { console.error("Sheets Error"); }
+            }
         }
 
-        document.getElementById('form-muzakki').addEventListener('submit', async (e) => {
+        document.getElementById('form-muzakki').addEventListener('submit', (e) => {
             e.preventDefault();
             const p = {
                 tgl: document.getElementById('tgl-zakat').value,
@@ -236,96 +224,49 @@
                 beras: parseFloat(document.getElementById('z-beras').value) || 0,
                 uang: parseFloat(document.getElementById('z-uang').value) || 0,
                 maal: parseFloat(document.getElementById('z-maal').value) || 0,
+                fidyah: parseFloat(document.getElementById('z-fidyah').value) || 0,
                 sUang: parseFloat(document.getElementById('s-uang').value) || 0,
                 sBeras: parseFloat(document.getElementById('s-beras').value) || 0
             };
-            db.muzakki.unshift(p); save(); sync('muzakki', p);
-            e.target.reset(); alert("Data Berhasil!"); updateDashboard();
+            db.muzakki.unshift(p); 
+            save(); 
+            sendToSheets(p);
+            e.target.reset(); 
+            alert("Data Berhasil!"); 
+            updateDashboard();
         });
 
-        document.getElementById('form-mustahiq').addEventListener('submit', async (e) => {
+        document.getElementById('form-mustahiq').addEventListener('submit', (e) => {
             e.preventDefault();
             const p = { nama: document.getElementById('nama-mustahiq').value, rt: document.getElementById('rt-mustahiq').value, kategori: document.getElementById('kategori-mustahiq').value };
-            db.mustahiq.unshift(p); save(); alert("Data Berhasil!"); updateDashboard();
+            db.mustahiq.unshift(p); 
+            save(); 
+            e.target.reset();
+            alert("Data Berhasil!"); 
+            updateDashboard();
         });
 
-        // --- FUNGSI RIWAYAT (DIKEMBALIKAN & DITINGKATKAN) ---
         function renderMuzakkiFull() {
-            const list = document.getElementById('list-muzakki-full');
-            list.innerHTML = db.muzakki.map((m, i) => `
+            document.getElementById('list-muzakki-full').innerHTML = db.muzakki.map((m, i) => `
                 <tr class="border-b muz-row" data-rt="${m.rt}">
-                    <td class="py-2">${m.tgl}</td>
-                    <td><b>${m.nama}</b></td>
-                    <td>${m.rt}</td>
-                    <td>${m.beras}</td>
-                    <td>${m.uang}</td>
-                    <td>${m.maal}</td>
-                    <td>${m.sUang}</td>
+                    <td>${m.tgl}</td><td><b>${m.nama}</b></td><td>${m.rt}</td><td>${m.beras}</td>
+                    <td>${m.uang.toLocaleString()}</td><td>${m.maal.toLocaleString()}</td>
+                    <td>${(m.fidyah || 0).toLocaleString()}</td><td>${m.sUang.toLocaleString()}</td>
                     <td>${m.sBeras}</td>
-                    <td>
-                        <button onclick="editMuzakki(${i})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button>
-                        <button onclick="del('muzakki', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button>
-                    </td>
+                    <td><button onclick="del('muzakki', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
         }
 
-        function editMuzakki(i) {
-            const m = db.muzakki[i];
-            document.getElementById('tgl-zakat').value = m.tgl;
-            document.getElementById('nama-muzakki').value = m.nama;
-            document.getElementById('rt-muzakki').value = m.rt;
-            document.getElementById('z-beras').value = m.beras;
-            document.getElementById('z-uang').value = m.uang;
-            document.getElementById('z-maal').value = m.maal;
-            document.getElementById('s-uang').value = m.sUang;
-            document.getElementById('s-beras').value = m.sBeras;
-            db.muzakki.splice(i, 1);
-            nav('entri', document.querySelector('[onclick*="entri"]'));
-        }
-
-        function filterMuzakki() {
-            let val = document.getElementById('search-muz-rt').value.toLowerCase();
-            let sumDiv = document.getElementById('rt-summary');
-            let tB=0, tU=0, tS=0;
-            
-            document.querySelectorAll('.muz-row').forEach(row => {
-                let match = row.getAttribute('data-rt').toLowerCase().includes(val);
-                row.style.display = match ? '' : 'none';
-                if(match && val !== "") {
-                    let cells = row.getElementsByTagName('td');
-                    tB += parseFloat(cells[3].innerText) || 0;
-                    tU += parseFloat(cells[4].innerText) || 0;
-                    tS += parseFloat(cells[6].innerText) || 0;
-                }
-            });
-
-            if(val !== "") {
-                sumDiv.classList.remove('hidden');
-                sumDiv.innerHTML = `Total RT ${val}: Fitrah Beras ${tB.toFixed(1)}kg | Fitrah Uang Rp ${tU.toLocaleString()} | Sod. Rp ${tS.toLocaleString()}`;
-            } else { sumDiv.classList.add('hidden'); }
-        }
-
         function renderMustahiqFull() {
-            const list = document.getElementById('list-mustahiq-full');
-            list.innerHTML = db.mustahiq.map((m, i) => `
+            document.getElementById('list-mustahiq-full').innerHTML = db.mustahiq.map((m, i) => `
                 <tr class="border-b mus-row" data-rt="${m.rt}">
-                    <td class="py-2"><b>${m.nama}</b></td>
-                    <td>${m.rt}</td>
-                    <td>${m.kategori}</td>
+                    <td><b>${m.nama}</b></td><td>${m.rt}</td><td>${m.kategori}</td>
                     <td><button onclick="del('mustahiq', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
         }
 
-        function filterMustahiq() {
-            let val = document.getElementById('search-mus-rt').value.toLowerCase();
-            document.querySelectorAll('.mus-row').forEach(row => {
-                row.style.display = row.getAttribute('data-rt').toLowerCase().includes(val) ? '' : 'none';
-            });
-        }
-
-        // --- FUNGSI KALKULASI ---
         function hitungBagi() {
             let totalBeras = 0, totalUangFitrah = 0, totalSodUang = 0, totalSodBeras = 0;
             db.muzakki.forEach(m => { totalBeras += m.beras; totalUangFitrah += m.uang; totalSodUang += m.sUang; totalSodBeras += m.sBeras; });
@@ -346,23 +287,24 @@
         }
 
         function updateLaporanFinal() {
-            let b=0, uF=0, uM=0, sU=0, sB=0;
-            db.muzakki.forEach(m => { b+=m.beras; uF+=m.uang; uM+=m.maal; sU+=m.sUang; sB+=m.sBeras; });
+            let b=0, uF=0, uM=0, fid=0, sU=0, sB=0;
+            db.muzakki.forEach(m => { b+=m.beras; uF+=m.uang; uM+=m.maal; fid+=(m.fidyah || 0); sU+=m.sUang; sB+=m.sBeras; });
             document.getElementById('rep-total-muz').innerText = db.muzakki.length;
             document.getElementById('rep-beras').innerText = b.toFixed(1);
             document.getElementById('rep-uang').innerText = "Rp " + uF.toLocaleString();
             document.getElementById('rep-maal').innerText = "Rp " + uM.toLocaleString();
+            document.getElementById('rep-fidyah').innerText = "Rp " + fid.toLocaleString();
             document.getElementById('rep-sod-beras').innerText = sB.toFixed(1);
             document.getElementById('rep-sod-uang').innerText = "Rp " + sU.toLocaleString();
-            document.getElementById('tgl-laporan-now').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         }
 
         function updateDashboard() {
-            let b=0, uF=0, uM=0, sU=0, sB=0;
-            db.muzakki.forEach(m => { b += m.beras; uF += m.uang; uM += m.maal; sU += m.sUang; sB += m.sBeras; });
+            let b=0, uF=0, uM=0, fid=0, sU=0, sB=0;
+            db.muzakki.forEach(m => { b += m.beras; uF += m.uang; uM += m.maal; fid += (m.fidyah || 0); sU += m.sUang; sB += m.sBeras; });
             document.getElementById('dash-beras').innerText = b.toFixed(1) + " Kg";
             document.getElementById('dash-uang').innerText = "Rp " + uF.toLocaleString();
             document.getElementById('dash-maal').innerText = "Rp " + uM.toLocaleString();
+            document.getElementById('dash-fidyah').innerText = "Rp " + fid.toLocaleString();
             document.getElementById('dash-sod-uang').innerText = "Rp " + sU.toLocaleString();
             document.getElementById('dash-sod-beras').innerText = sB.toFixed(1) + " Kg";
             document.getElementById('stat-muzakki').innerText = db.muzakki.length;
@@ -372,11 +314,7 @@
         function del(type, i) { if(confirm("Hapus?")) { db[type].splice(i, 1); save(); renderMuzakkiFull(); renderMustahiqFull(); updateDashboard(); } }
         function save() { localStorage.setItem('zakat_db', JSON.stringify(db)); }
         function saveGasUrl() { localStorage.setItem('gas_url', document.getElementById('gas-url-input').value); alert("Ok!"); }
-        function importData(e) {
-            const r = new FileReader();
-            r.onload = (ev) => { try { db = JSON.parse(ev.target.result); save(); location.reload(); } catch(err) { alert("Error!"); } };
-            r.readAsText(e.target.files[0]);
-        }
+        function importData(e) { const r = new FileReader(); r.onload = (ev) => { try { db = JSON.parse(ev.target.result); save(); location.reload(); } catch(err) { alert("Error!"); } }; r.readAsText(e.target.files[0]); }
         function exportToExcel() { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.muzakki), "MUZAKKI"); XLSX.writeFile(wb, "Laporan_Zakat.xlsx"); }
         function backupJSON() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "Backup_Zakat.json"); dl.click(); }
         function resetData() { if(confirm("Reset?")) { localStorage.clear(); location.reload(); } }
