@@ -14,7 +14,24 @@
         .card { background: white; padding: 18px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
         .table-res { overflow-x: auto; max-height: 450px; overflow-y: auto; font-size: 11px; }
         th { position: sticky; top: 0; background: #f1f5f9; z-index: 10; padding: 8px; }
-        @media print { .no-print { display: none !important; } .print-only { display: block !important; } body { background: white; padding: 0; } .card { box-shadow: none; border: 1px solid #eee; margin: 0; } }
+
+        /* PERBAIKAN PRINT ISOLASI */
+        @media print { 
+            body * { visibility: hidden; }
+            #area-print-mustahiq, #area-print-mustahiq * { visibility: visible; }
+            #area-print-mustahiq { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                visibility: visible !important;
+            }
+            .no-print { display: none !important; }
+            .card { box-shadow: none !important; border: none !important; padding: 0 !important; }
+            table { width: 100% !important; border-collapse: collapse; }
+            th, td { border: 1px solid #ddd !important; padding: 8px !important; }
+            .table-res { max-height: none !important; overflow: visible !important; }
+        }
     </style>
 </head>
 <body>
@@ -47,8 +64,9 @@
 
         <section id="entri" class="hidden-section">
             <div class="card">
-                <h2 class="text-sm font-bold text-emerald-700 mb-4 uppercase italic">Form Entri Muzakki</h2>
+                <h2 class="text-sm font-bold text-emerald-700 mb-4 uppercase italic" id="title-muzakki">Form Entri Muzakki</h2>
                 <form id="form-muzakki" class="space-y-3">
+                    <input type="hidden" id="edit-index-muzakki" value="-1">
                     <input type="date" id="tgl-zakat" class="w-full p-2 border rounded-xl outline-none" required>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="nama-muzakki" placeholder="Nama Muzakki" class="p-2 border rounded-xl" required>
@@ -66,12 +84,14 @@
                         <input type="number" id="s-uang" placeholder="Sod Rp" class="p-2 border rounded-lg text-[10px]">
                         <input type="number" step="0.1" id="s-beras" placeholder="Sod Kg" class="p-2 border rounded-lg text-[10px]">
                     </div>
-                    <button type="submit" class="w-full bg-emerald-600 text-white p-3 rounded-xl font-black shadow-lg">SIMPAN MUZAKKI</button>
+                    <button type="submit" id="btn-submit-muzakki" class="w-full bg-emerald-600 text-white p-3 rounded-xl font-black shadow-lg">SIMPAN MUZAKKI</button>
+                    <button type="button" id="btn-batal-muzakki" class="hidden w-full bg-gray-400 text-white p-2 rounded-xl font-bold mt-1" onclick="resetFormMuzakki()">BATAL EDIT</button>
                 </form>
             </div>
             <div class="card border-t-4 border-orange-400">
-                <h2 class="text-sm font-bold text-orange-700 mb-4 uppercase italic">Form Entri Mustahiq</h2>
+                <h2 class="text-sm font-bold text-orange-700 mb-4 uppercase italic" id="title-mustahiq">Form Entri Mustahiq</h2>
                 <form id="form-mustahiq" class="space-y-3">
+                    <input type="hidden" id="edit-index-mustahiq" value="-1">
                     <input type="text" id="nama-mustahiq" placeholder="Nama Penerima" class="w-full p-2 border rounded-xl" required>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="rt-mustahiq" placeholder="RT" class="p-2 border rounded-xl">
@@ -79,16 +99,17 @@
                             <option value="Fakir/Miskin">Fakir/Miskin</option><option value="Fi Sabilillah">Fi Sabilillah</option><option value="Amil">Amil</option>
                         </select>
                     </div>
-                    <button type="submit" class="w-full bg-orange-500 text-white p-3 rounded-xl font-black">SIMPAN MUSTAHIQ</button>
+                    <button type="submit" id="btn-submit-mustahiq" class="w-full bg-orange-500 text-white p-3 rounded-xl font-black">SIMPAN MUSTAHIQ</button>
+                    <button type="button" id="btn-batal-mustahiq" class="hidden w-full bg-gray-400 text-white p-2 rounded-xl font-bold mt-1" onclick="resetFormMustahiq()">BATAL EDIT</button>
                 </form>
             </div>
         </section>
 
         <section id="riwayat" class="hidden-section">
-            <div class="card">
+            <div class="card no-print">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-bold uppercase text-emerald-800">Muzakki</h2>
-                    <input type="text" id="search-muz-rt" onkeyup="filterMuzakki()" placeholder="Cari RT..." class="p-1 border rounded text-[10px] w-20">
+                    <h2 class="text-sm font-bold uppercase text-emerald-800">Data Muzakki</h2>
+                    <input type="text" id="search-muz-rt" onkeyup="filterMuzakki()" placeholder="Cari RT..." class="p-1 border rounded text-[10px] w-20 outline-none">
                 </div>
                 <div class="table-res">
                     <table class="w-full text-left text-[10px]">
@@ -97,14 +118,24 @@
                     </table>
                 </div>
             </div>
-            <div class="card">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-bold uppercase text-orange-800">Mustahiq</h2>
-                    <input type="text" id="search-mus-rt" onkeyup="filterMustahiq()" placeholder="Filter RT..." class="p-1 border rounded text-[10px] w-20">
+            
+            <div class="card" id="area-print-mustahiq">
+                <div class="flex justify-between items-center mb-4 no-print">
+                    <h2 class="text-sm font-bold uppercase text-orange-800">Data Mustahiq</h2>
+                    <div class="flex gap-2">
+                        <input type="text" id="search-mus-rt" onkeyup="filterMustahiq()" placeholder="Filter RT..." class="p-1 border rounded text-[10px] w-20 outline-none">
+                        <button onclick="window.print()" class="bg-blue-500 text-white px-3 py-1 rounded text-[10px] font-bold"><i class="fas fa-print"></i> PRINT</button>
+                    </div>
                 </div>
+
+                <div class="hidden print:block text-center mb-4 border-b pb-2">
+                    <h2 class="text-lg font-bold">DAFTAR MUSTAHIQ (FILTERED)</h2>
+                    <p class="text-xs uppercase">Masjid Al Furqon Puri Delta Asri - 2026</p>
+                </div>
+
                 <div class="table-res">
                     <table class="w-full text-left">
-                        <thead><tr class="text-gray-400"><th>Nama</th><th>RT</th><th>Kategori</th><th>Hapus</th></tr></thead>
+                        <thead><tr class="text-gray-400 border-b"><th>Nama</th><th>RT</th><th>Kategori</th><th class="no-print">Aksi</th></tr></thead>
                         <tbody id="list-mustahiq-full"></tbody>
                     </table>
                 </div>
@@ -133,7 +164,7 @@
             <div id="format-laporan-cetak" class="card">
                 <div class="text-center mb-6">
                     <h2 class="text-lg font-black uppercase">LAPORAN AKHIR PANITIA ZAKAT</h2>
-                    <h3 class="font-bold uppercase">MASJID AL FURQON - PURI DELTA ASRI 1</h3>
+                    <h3 class="font-bold uppercase text-xs">MASJID AL FURQON - PURI DELTA ASRI</h3>
                     <hr class="mt-2 border-black border-2">
                 </div>
                 <div class="space-y-5 text-[11px]">
@@ -169,7 +200,7 @@
                     <div>
                         <label class="text-[9px] font-bold text-emerald-600 uppercase">Google Sheets Script URL</label>
                         <input type="password" id="gas-url-input" placeholder="Paste URL Script" class="w-full p-2 border rounded-lg text-[10px] bg-gray-50">
-                        <button onclick="saveGasUrl()" class="w-full bg-emerald-700 text-white p-2 rounded-lg text-[10px] mt-1 font-bold">UPDATE KONEKSI</button>
+                        <button onclick="saveGasUrl()" class="w-full bg-emerald-700 text-white p-2 rounded-lg text-[10px] mt-1 font-bold uppercase">Update Koneksi</button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="exportToExcel()" class="bg-blue-600 text-white p-3 rounded-xl font-bold text-[10px] shadow-md"><i class="fas fa-file-excel block text-lg mb-1"></i> EXCEL</button>
@@ -186,11 +217,11 @@
     </div>
 
     <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 no-print shadow-2xl z-50">
-        <div class="nav-btn nav-active text-center w-1/5" onclick="nav('dashboard', this)"><i class="fas fa-chart-pie text-lg"></i><p class="text-[8px] font-bold uppercase">Home</p></div>
-        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('entri', this)"><i class="fas fa-edit text-lg"></i><p class="text-[8px] font-bold uppercase">Entri</p></div>
-        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('riwayat', this)"><i class="fas fa-database text-lg"></i><p class="text-[8px] font-bold uppercase">Data</p></div>
-        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('laporan', this)"><i class="fas fa-file-signature text-lg"></i><p class="text-[8px] font-bold uppercase">Laporan</p></div>
-        <div class="nav-btn text-gray-400 text-center w-1/5" onclick="nav('settings', this)"><i class="fas fa-cog text-lg"></i><p class="text-[8px] font-bold uppercase">Set</p></div>
+        <div class="nav-btn nav-active text-center w-1/5 cursor-pointer" onclick="nav('dashboard', this)"><i class="fas fa-chart-pie text-lg"></i><p class="text-[8px] font-bold uppercase">Home</p></div>
+        <div class="nav-btn text-gray-400 text-center w-1/5 cursor-pointer" onclick="nav('entri', this)"><i class="fas fa-edit text-lg"></i><p class="text-[8px] font-bold uppercase">Entri</p></div>
+        <div class="nav-btn text-gray-400 text-center w-1/5 cursor-pointer" onclick="nav('riwayat', this)"><i class="fas fa-database text-lg"></i><p class="text-[8px] font-bold uppercase">Data</p></div>
+        <div class="nav-btn text-gray-400 text-center w-1/5 cursor-pointer" onclick="nav('laporan', this)"><i class="fas fa-file-signature text-lg"></i><p class="text-[8px] font-bold uppercase">Laporan</p></div>
+        <div class="nav-btn text-gray-400 text-center w-1/5 cursor-pointer" onclick="nav('settings', this)"><i class="fas fa-cog text-lg"></i><p class="text-[8px] font-bold uppercase">Set</p></div>
     </nav>
 
     <script>
@@ -207,16 +238,19 @@
             if(target === 'laporan') { updateLaporanFinal(); hitungBagi(); }
         }
 
-        async function sendToSheets(data) {
+        async function sendToSheets(data, type) {
             const url = localStorage.getItem('gas_url');
-            if(url) {
-                try { await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }); } 
-                catch(e) { console.error("Sheets Error"); }
-            }
+            if(!url) return;
+            const payload = { ...data, type: type, tglInput: new Date().toLocaleString('id-ID') };
+            try { 
+                await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); 
+            } catch(e) { console.error("Sheets Error"); }
         }
 
+        // --- MUZAKKI LOGIC ---
         document.getElementById('form-muzakki').addEventListener('submit', (e) => {
             e.preventDefault();
+            const idx = parseInt(document.getElementById('edit-index-muzakki').value);
             const p = {
                 tgl: document.getElementById('tgl-zakat').value,
                 nama: document.getElementById('nama-muzakki').value,
@@ -228,45 +262,134 @@
                 sUang: parseFloat(document.getElementById('s-uang').value) || 0,
                 sBeras: parseFloat(document.getElementById('s-beras').value) || 0
             };
-            db.muzakki.unshift(p); 
-            save(); 
-            sendToSheets(p);
-            e.target.reset(); 
-            alert("Data Berhasil!"); 
-            updateDashboard();
+            
+            if(idx === -1) {
+                db.muzakki.unshift(p);
+                sendToSheets(p, 'muzakki');
+            } else {
+                db.muzakki[idx] = p;
+            }
+            
+            save(); resetFormMuzakki(); alert("Berhasil Disimpan!"); updateDashboard();
         });
 
+        function editMuzakki(i) {
+            const m = db.muzakki[i];
+            document.getElementById('edit-index-muzakki').value = i;
+            document.getElementById('tgl-zakat').value = m.tgl;
+            document.getElementById('nama-muzakki').value = m.nama;
+            document.getElementById('rt-muzakki').value = m.rt;
+            document.getElementById('z-beras').value = m.beras;
+            document.getElementById('z-uang').value = m.uang;
+            document.getElementById('z-maal').value = m.maal;
+            document.getElementById('z-fidyah').value = m.fidyah || 0;
+            document.getElementById('s-uang').value = m.sUang;
+            document.getElementById('s-beras').value = m.sBeras;
+            
+            document.getElementById('title-muzakki').innerText = "Edit Muzakki: " + m.nama;
+            document.getElementById('btn-submit-muzakki').innerText = "UPDATE DATA";
+            document.getElementById('btn-batal-muzakki').classList.remove('hidden');
+            nav('entri', document.querySelectorAll('.nav-btn')[1]);
+        }
+
+        function resetFormMuzakki() {
+            document.getElementById('form-muzakki').reset();
+            document.getElementById('edit-index-muzakki').value = "-1";
+            document.getElementById('title-muzakki').innerText = "Form Entri Muzakki";
+            document.getElementById('btn-submit-muzakki').innerText = "SIMPAN MUZAKKI";
+            document.getElementById('btn-batal-muzakki').classList.add('hidden');
+        }
+
+        // --- MUSTAHIQ LOGIC ---
         document.getElementById('form-mustahiq').addEventListener('submit', (e) => {
             e.preventDefault();
-            const p = { nama: document.getElementById('nama-mustahiq').value, rt: document.getElementById('rt-mustahiq').value, kategori: document.getElementById('kategori-mustahiq').value };
-            db.mustahiq.unshift(p); 
-            save(); 
-            e.target.reset();
-            alert("Data Berhasil!"); 
-            updateDashboard();
+            const idx = parseInt(document.getElementById('edit-index-mustahiq').value);
+            const p = { 
+                nama: document.getElementById('nama-mustahiq').value, 
+                rt: document.getElementById('rt-mustahiq').value, 
+                kategori: document.getElementById('kategori-mustahiq').value 
+            };
+            
+            if(idx === -1) {
+                db.mustahiq.unshift(p);
+                sendToSheets(p, 'mustahiq');
+            } else {
+                db.mustahiq[idx] = p;
+            }
+            
+            save(); resetFormMustahiq(); alert("Berhasil Disimpan!"); updateDashboard();
         });
+
+        function editMustahiq(i) {
+            const m = db.mustahiq[i];
+            document.getElementById('edit-index-mustahiq').value = i;
+            document.getElementById('nama-mustahiq').value = m.nama;
+            document.getElementById('rt-mustahiq').value = m.rt;
+            document.getElementById('kategori-mustahiq').value = m.kategori;
+            
+            document.getElementById('title-mustahiq').innerText = "Edit Mustahiq: " + m.nama;
+            document.getElementById('btn-submit-mustahiq').innerText = "UPDATE DATA";
+            document.getElementById('btn-batal-mustahiq').classList.remove('hidden');
+            nav('entri', document.querySelectorAll('.nav-btn')[1]);
+        }
+
+        function resetFormMustahiq() {
+            document.getElementById('form-mustahiq').reset();
+            document.getElementById('edit-index-mustahiq').value = "-1";
+            document.getElementById('title-mustahiq').innerText = "Form Entri Mustahiq";
+            document.getElementById('btn-submit-mustahiq').innerText = "SIMPAN MUSTAHIQ";
+            document.getElementById('btn-batal-mustahiq').classList.add('hidden');
+        }
+
+        // --- FILTER & RENDER ---
+        function filterMuzakki() {
+            let val = document.getElementById('search-muz-rt').value.trim().toLowerCase();
+            document.querySelectorAll('#list-muzakki-full tr').forEach(row => {
+                row.style.display = row.getAttribute('data-rt').toLowerCase().includes(val) ? '' : 'none';
+            });
+        }
+
+        function filterMustahiq() {
+            let val = document.getElementById('search-mus-rt').value.trim().toLowerCase();
+            document.querySelectorAll('#list-mustahiq-full tr').forEach(row => {
+                row.style.display = row.getAttribute('data-rt').toLowerCase().includes(val) ? '' : 'none';
+            });
+        }
 
         function renderMuzakkiFull() {
             document.getElementById('list-muzakki-full').innerHTML = db.muzakki.map((m, i) => `
-                <tr class="border-b muz-row" data-rt="${m.rt}">
+                <tr class="border-b" data-rt="${m.rt || ''}">
                     <td>${m.tgl}</td><td><b>${m.nama}</b></td><td>${m.rt}</td><td>${m.beras}</td>
                     <td>${m.uang.toLocaleString()}</td><td>${m.maal.toLocaleString()}</td>
                     <td>${(m.fidyah || 0).toLocaleString()}</td><td>${m.sUang.toLocaleString()}</td>
                     <td>${m.sBeras}</td>
-                    <td><button onclick="del('muzakki', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button></td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button onclick="editMuzakki(${i})" class="text-blue-500"><i class="fas fa-edit"></i></button>
+                            <button onclick="del('muzakki', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
         }
 
         function renderMustahiqFull() {
             document.getElementById('list-mustahiq-full').innerHTML = db.mustahiq.map((m, i) => `
-                <tr class="border-b mus-row" data-rt="${m.rt}">
-                    <td><b>${m.nama}</b></td><td>${m.rt}</td><td>${m.kategori}</td>
-                    <td><button onclick="del('mustahiq', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button></td>
+                <tr class="border-b" data-rt="${m.rt || ''}">
+                    <td class="p-2 border font-bold">${m.nama}</td>
+                    <td class="p-2 border text-center">${m.rt}</td>
+                    <td class="p-2 border">${m.kategori}</td>
+                    <td class="no-print p-2 border">
+                        <div class="flex gap-3">
+                            <button onclick="editMustahiq(${i})" class="text-blue-500"><i class="fas fa-edit"></i> EDIT</button>
+                            <button onclick="del('mustahiq', ${i})" class="text-red-400"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
                 </tr>
             `).join('');
         }
 
+        // --- SISTEM UTILITAS ---
         function hitungBagi() {
             let totalBeras = 0, totalUangFitrah = 0, totalSodUang = 0, totalSodBeras = 0;
             db.muzakki.forEach(m => { totalBeras += m.beras; totalUangFitrah += m.uang; totalSodUang += m.sUang; totalSodBeras += m.sBeras; });
@@ -311,13 +434,14 @@
             document.getElementById('stat-mustahiq').innerText = db.mustahiq.length;
         }
 
-        function del(type, i) { if(confirm("Hapus?")) { db[type].splice(i, 1); save(); renderMuzakkiFull(); renderMustahiqFull(); updateDashboard(); } }
+        function del(type, i) { if(confirm("Hapus data ini?")) { db[type].splice(i, 1); save(); renderMuzakkiFull(); renderMustahiqFull(); updateDashboard(); } }
         function save() { localStorage.setItem('zakat_db', JSON.stringify(db)); }
-        function saveGasUrl() { localStorage.setItem('gas_url', document.getElementById('gas-url-input').value); alert("Ok!"); }
-        function importData(e) { const r = new FileReader(); r.onload = (ev) => { try { db = JSON.parse(ev.target.result); save(); location.reload(); } catch(err) { alert("Error!"); } }; r.readAsText(e.target.files[0]); }
-        function exportToExcel() { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.muzakki), "MUZAKKI"); XLSX.writeFile(wb, "Laporan_Zakat.xlsx"); }
+        function saveGasUrl() { localStorage.setItem('gas_url', document.getElementById('gas-url-input').value); alert("URL Koneksi Tersimpan!"); }
+        function importData(e) { const r = new FileReader(); r.onload = (ev) => { try { db = JSON.parse(ev.target.result); save(); location.reload(); } catch(err) { alert("Format File Salah!"); } }; r.readAsText(e.target.files[0]); }
+        function exportToExcel() { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.muzakki), "MUZAKKI"); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.mustahiq), "MUSTAHIQ"); XLSX.writeFile(wb, "Laporan_Zakat_2026.xlsx"); }
         function backupJSON() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "Backup_Zakat.json"); dl.click(); }
-        function resetData() { if(confirm("Reset?")) { localStorage.clear(); location.reload(); } }
+        function resetData() { if(confirm("PERINGATAN! Ini akan menghapus seluruh data permanen. Lanjutkan?")) { localStorage.clear(); location.reload(); } }
+        
         updateDashboard();
     </script>
 </body>
